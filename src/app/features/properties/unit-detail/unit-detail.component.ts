@@ -7,20 +7,29 @@ import { ButtonModule } from 'primeng/button';
 import { DatePickerModule } from 'primeng/datepicker';
 import { DialogModule } from 'primeng/dialog';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { InputTextModule } from 'primeng/inputtext';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
+import { TextareaModule } from 'primeng/textarea';
 
 import { AuthService } from '../../../core/auth/auth.service';
+import {
+  APPLICATION_STATUS_LABELS,
+  APPLICATION_STATUS_SEVERITY,
+  ApplicationResponse,
+} from '../../../core/models/application.model';
 import { LEASE_STATUS_LABELS, LEASE_STATUS_SEVERITY, LeaseResponse } from '../../../core/models/lease.model';
 import {
   PROPERTY_TYPE_LABELS,
   PropertyResponse,
   UNIT_STATUS_LABELS,
   UNIT_STATUS_SEVERITY,
+  UNIT_TYPE_LABELS,
   UnitResponse,
 } from '../../../core/models/property.model';
 import { TenantResponse } from '../../../core/models/tenant.model';
+import { ApplicationService } from '../../../core/services/application.service';
 import { LeaseService } from '../../../core/services/lease.service';
 import { PropertyService } from '../../../core/services/property.service';
 import { TenantService } from '../../../core/services/tenant.service';
@@ -34,9 +43,11 @@ import { TenantService } from '../../../core/services/tenant.service';
     DatePickerModule,
     DialogModule,
     InputNumberModule,
+    InputTextModule,
     MultiSelectModule,
     TableModule,
     TagModule,
+    TextareaModule,
     CurrencyPipe,
     DatePipe,
     PrimeTemplate,
@@ -53,6 +64,7 @@ export class UnitDetailComponent {
   private readonly propertyService = inject(PropertyService);
   private readonly tenantService = inject(TenantService);
   private readonly leaseService = inject(LeaseService);
+  private readonly applicationService = inject(ApplicationService);
   private readonly messageService = inject(MessageService);
 
   readonly propertyId = this.route.snapshot.paramMap.get('propertyId')!;
@@ -69,6 +81,7 @@ export class UnitDetailComponent {
   readonly typeLabels = PROPERTY_TYPE_LABELS;
   readonly unitStatusLabels = UNIT_STATUS_LABELS;
   readonly unitStatusSeverity = UNIT_STATUS_SEVERITY;
+  readonly unitTypeLabels = UNIT_TYPE_LABELS;
   readonly leaseStatusLabels = LEASE_STATUS_LABELS;
   readonly leaseStatusSeverity = LEASE_STATUS_SEVERITY;
 
@@ -77,6 +90,25 @@ export class UnitDetailComponent {
     startDate: this.fb.control<Date | null>(null, Validators.required),
     endDate: this.fb.control<Date | null>(null),
     monthlyRent: this.fb.control<number | null>(null, Validators.required),
+    securityDeposit: this.fb.control<number | null>(null, Validators.required),
+  });
+
+  // --- Candidatures ------------------------------------------------
+  readonly applications = signal<ApplicationResponse[]>([]);
+  readonly applicationStatusLabels = APPLICATION_STATUS_LABELS;
+  readonly applicationStatusSeverity = APPLICATION_STATUS_SEVERITY;
+  readonly reviewDialogVisible = signal(false);
+  readonly decisionDialogVisible = signal(false);
+  readonly applicationActionSubmitting = signal(false);
+  readonly reviewingApplicationId = signal<string | null>(null);
+  readonly decidingApplicationId = signal<string | null>(null);
+  readonly reviewForm = this.fb.nonNullable.group({
+    solvencyScore: this.fb.control<number | null>(null, [Validators.min(0), Validators.max(100)]),
+    reviewComments: this.fb.control<string | null>(null, Validators.maxLength(2000)),
+  });
+  readonly decisionForm = this.fb.nonNullable.group({
+    accepted: this.fb.nonNullable.control<boolean>(true),
+    decisionReason: this.fb.control<string | null>(null, Validators.maxLength(2000)),
   });
 
   constructor() {
@@ -95,6 +127,14 @@ export class UnitDetailComponent {
     return tenant ? `${tenant.firstName} ${tenant.lastName}` : tenantId;
   };
 
+  copyApplicationLink(): void {
+    const link = `${window.location.origin}/apply/${this.propertyId}/${this.unitId}`;
+    navigator.clipboard.writeText(link).then(
+      () => this.messageService.add({ severity: 'success', summary: 'Lien copié', detail: link }),
+      () => this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'La copie du lien a échoué.' }),
+    );
+  }
+
   private load(): void {
     this.loading.set(true);
     this.propertyService.getById(this.propertyId).subscribe((property) => this.property.set(property));
@@ -109,6 +149,7 @@ export class UnitDetailComponent {
       },
     });
     this.loadLeases();
+    this.loadApplications();
 
     const organizationId = this.auth.session()?.organizationId;
     if (organizationId) {
@@ -116,8 +157,86 @@ export class UnitDetailComponent {
     }
   }
 
+  // La signature d'un bail marque l'unite "Occupee" cote backend (voir
+  // LeaseService.create) -- il faut recharger l'unite, pas seulement la
+  // liste des baux, pour que le badge de statut reflete ce changement.
+  private loadUnit(): void {
+    this.propertyService.getUnit(this.propertyId, this.unitId).subscribe((unit) => this.unit.set(unit));
+  }
+
   loadLeases(): void {
     this.leaseService.list(this.propertyId, this.unitId).subscribe((leases) => this.leases.set(leases));
+  }
+
+  loadApplications(): void {
+    this.applicationService.list(this.propertyId, this.unitId).subscribe((applications) => this.applications.set(applications));
+  }
+
+  recordSecurityDepositPayment(lease: LeaseResponse): void {
+    this.leaseService.recordSecurityDepositPayment(this.propertyId, this.unitId, lease.id).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Dépôt de garantie enregistré' });
+        this.loadLeases();
+      },
+      error: () => {
+        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: "L'enregistrement du dépôt a échoué." });
+      },
+    });
+  }
+
+  openReviewDialog(application: ApplicationResponse): void {
+    this.reviewingApplicationId.set(application.id);
+    this.reviewForm.reset({ solvencyScore: application.solvencyScore, reviewComments: application.reviewComments });
+    this.reviewDialogVisible.set(true);
+  }
+
+  submitReview(): void {
+    const applicationId = this.reviewingApplicationId();
+    if (!applicationId || this.reviewForm.invalid) {
+      this.reviewForm.markAllAsTouched();
+      return;
+    }
+    this.applicationActionSubmitting.set(true);
+    const value = this.reviewForm.getRawValue();
+    this.applicationService.review(this.propertyId, this.unitId, applicationId, value).subscribe({
+      next: () => {
+        this.applicationActionSubmitting.set(false);
+        this.reviewDialogVisible.set(false);
+        this.messageService.add({ severity: 'success', summary: 'Candidature évaluée' });
+        this.loadApplications();
+      },
+      error: () => {
+        this.applicationActionSubmitting.set(false);
+        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: "L'évaluation a échoué." });
+      },
+    });
+  }
+
+  openDecisionDialog(application: ApplicationResponse, accepted: boolean): void {
+    this.decidingApplicationId.set(application.id);
+    this.decisionForm.reset({ accepted, decisionReason: null });
+    this.decisionDialogVisible.set(true);
+  }
+
+  submitDecision(): void {
+    const applicationId = this.decidingApplicationId();
+    if (!applicationId) {
+      return;
+    }
+    this.applicationActionSubmitting.set(true);
+    const value = this.decisionForm.getRawValue();
+    this.applicationService.decide(this.propertyId, this.unitId, applicationId, value).subscribe({
+      next: () => {
+        this.applicationActionSubmitting.set(false);
+        this.decisionDialogVisible.set(false);
+        this.messageService.add({ severity: 'success', summary: value.accepted ? 'Candidature acceptée' : 'Candidature refusée' });
+        this.loadApplications();
+      },
+      error: () => {
+        this.applicationActionSubmitting.set(false);
+        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'La décision a échoué.' });
+      },
+    });
   }
 
   openDialog(): void {
@@ -138,6 +257,7 @@ export class UnitDetailComponent {
         startDate: value.startDate!.toISOString().slice(0, 10),
         endDate: value.endDate ? value.endDate.toISOString().slice(0, 10) : null,
         monthlyRent: value.monthlyRent!,
+        securityDeposit: value.securityDeposit!,
       })
       .subscribe({
         next: () => {
@@ -145,6 +265,7 @@ export class UnitDetailComponent {
           this.dialogVisible.set(false);
           this.messageService.add({ severity: 'success', summary: 'Bail créé' });
           this.loadLeases();
+          this.loadUnit();
         },
         error: (err) => {
           this.submitting.set(false);

@@ -28,6 +28,15 @@
       <span class="lease-info-label">Loyer mensuel</span>
       <span class="lease-info-value">{{ lease.monthlyRent | currency: 'CAD' : 'symbol-narrow' : '1.0-0' }}</span>
     </div>
+    <div class="surface-card lease-info-card">
+      <span class="lease-info-label">Dépôt de garantie</span>
+      <span class="lease-info-value">{{ lease.securityDeposit | currency: 'CAD' : 'symbol-narrow' : '1.0-0' }}</span>
+      @if (lease.securityDepositPaidAt) {
+        <p-tag severity="success" value="Versé" />
+      } @else {
+        <p-button label="Enregistrer le versement" size="small" [text]="true" (onClick)="recordSecurityDepositPayment()" />
+      }
+    </div>
   </div>
 }
 

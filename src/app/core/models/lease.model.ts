@@ -8,6 +8,8 @@ export interface LeaseResponse {
   startDate: string;
   endDate: string | null;
   monthlyRent: number;
+  securityDeposit: number;
+  securityDepositPaidAt: string | null;
   status: LeaseStatus;
   createdAt: string;
 }
@@ -17,6 +19,7 @@ export interface CreateLeaseRequest {
   startDate: string;
   endDate: string | null;
   monthlyRent: number;
+  securityDeposit: number;
 }
 
 export const LEASE_STATUS_LABELS: Record<string, string> = {

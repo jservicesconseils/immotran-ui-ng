@@ -7,6 +7,12 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/login/login.component').then((m) => m.LoginComponent),
   },
   {
+    // Public : formulaire de candidature, pas de garde d'authentification
+    // -- un candidat a la location n'a pas de compte (voir ApplyComponent).
+    path: 'apply/:propertyId/:unitId',
+    loadComponent: () => import('./features/apply/apply.component').then((m) => m.ApplyComponent),
+  },
+  {
     path: '',
     loadComponent: () => import('./layout/shell/shell.component').then((m) => m.ShellComponent),
     canActivate: [authGuard],

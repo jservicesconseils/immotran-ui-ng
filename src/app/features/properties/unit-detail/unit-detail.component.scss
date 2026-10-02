@@ -44,6 +44,36 @@
   }
 }
 
+.section-header-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.unit-description-card {
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  color: var(--p-surface-700);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.entity-name {
+  font-weight: 600;
+  color: var(--p-surface-900);
+  font-size: 0.9rem;
+}
+
+.entity-subtext {
+  font-size: 0.78rem;
+  color: var(--p-surface-500);
+}
+
+.application-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
 .clickable-row {
   cursor: pointer;
 }

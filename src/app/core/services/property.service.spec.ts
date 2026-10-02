@@ -30,6 +30,14 @@ describe('PropertyService', () => {
       city: 'Montreal',
       province: 'QC',
       postalCode: 'H1A 1A1',
+      cadastreNumber: null,
+      taxId: null,
+      buildingStatus: null,
+      yearBuilt: null,
+      floorCount: null,
+      totalSurfaceArea: null,
+      estimatedValue: null,
+      description: null,
     };
     const response: PropertyResponse = { id: 'p-1', ...request, status: 'VACANTE', createdAt: '2026-01-01T00:00:00Z' };
 
@@ -51,6 +59,14 @@ describe('PropertyService', () => {
       province: 'QC',
       postalCode: 'G1A 1A1',
       status: 'OCCUPEE',
+      cadastreNumber: null,
+      taxId: null,
+      buildingStatus: null,
+      yearBuilt: null,
+      floorCount: null,
+      totalSurfaceArea: null,
+      estimatedValue: null,
+      description: null,
       createdAt: '2026-01-01T00:00:00Z',
     };
 
@@ -69,6 +85,8 @@ describe('PropertyService', () => {
       areaSquareMeters: null,
       bedrooms: 3,
       bathrooms: 1,
+      type: null,
+      description: null,
     };
     const response: UnitResponse = { id: 'u-1', propertyId: 'p-1', ...request, status: 'DISPONIBLE', createdAt: '2026-01-01T00:00:00Z' };
 

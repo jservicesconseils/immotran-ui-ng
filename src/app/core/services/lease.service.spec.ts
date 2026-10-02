@@ -20,7 +20,9 @@ describe('LeaseService', () => {
   afterEach(() => httpMock.verify());
 
   it('creerUnBail_posteSurLeChminImbrique', () => {
-    service.create('p-1', 'u-1', { tenantIds: ['t-1'], startDate: '2026-01-01', endDate: null, monthlyRent: 1500 }).subscribe();
+    service
+      .create('p-1', 'u-1', { tenantIds: ['t-1'], startDate: '2026-01-01', endDate: null, monthlyRent: 1500, securityDeposit: 750 })
+      .subscribe();
 
     const req = httpMock.expectOne(leasesUrl);
     expect(req.request.method).toBe('POST');
@@ -41,5 +43,13 @@ describe('LeaseService', () => {
     const req = httpMock.expectOne(leasesUrl);
     expect(req.request.method).toBe('GET');
     req.flush([]);
+  });
+
+  it('enregistrerLeDepotDeGarantie_appellePutSurLeChminDedie', () => {
+    service.recordSecurityDepositPayment('p-1', 'u-1', 'l-1').subscribe();
+
+    const req = httpMock.expectOne(`${leasesUrl}/l-1/depot-garantie`);
+    expect(req.request.method).toBe('PUT');
+    req.flush({});
   });
 });

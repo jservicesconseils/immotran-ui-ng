@@ -32,8 +32,57 @@
       <span class="unit-info-label">Salles de bain</span>
       <span class="unit-info-value">{{ unit.bathrooms ?? '—' }}</span>
     </div>
+    <div class="surface-card unit-info-card">
+      <span class="unit-info-label">Type</span>
+      <span class="unit-info-value">{{ unit.type ? unitTypeLabels[unit.type] : '—' }}</span>
+    </div>
   </div>
+  @if (unit.description) {
+    <div class="surface-card unit-description-card">{{ unit.description }}</div>
+  }
 }
+
+<div class="surface-card">
+  <div class="section-header">
+    <h3>Candidatures</h3>
+    <div class="section-header-actions">
+      <p-button label="Lien de candidature" icon="pi pi-link" size="small" severity="secondary" [outlined]="true" (onClick)="copyApplicationLink()" />
+    </div>
+  </div>
+
+  <p-table [value]="applications()" dataKey="id" [rowHover]="true" responsiveLayout="scroll">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Candidat</th>
+        <th>Revenu mensuel</th>
+        <th>Score</th>
+        <th>Statut</th>
+        <th style="width: 18rem"></th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-application>
+      <tr>
+        <td>
+          <div class="entity-name">{{ application.firstName }} {{ application.lastName }}</div>
+          <div class="entity-subtext">{{ application.email }} · {{ application.phone }}</div>
+        </td>
+        <td>{{ application.monthlyIncome ? (application.monthlyIncome | currency: 'CAD' : 'symbol-narrow' : '1.0-0') : '—' }}</td>
+        <td>{{ application.solvencyScore ?? '—' }}</td>
+        <td><p-tag [severity]="applicationStatusSeverity[application.status]" [value]="applicationStatusLabels[application.status]" /></td>
+        <td class="application-actions">
+          @if (application.status === 'EN_ATTENTE_VERIFICATION' || application.status === 'EN_EVALUATION' || application.status === 'EN_ATTENTE_INFO') {
+            <p-button label="Évaluer" size="small" severity="secondary" [outlined]="true" (onClick)="openReviewDialog(application)" />
+            <p-button label="Accepter" size="small" severity="success" [outlined]="true" (onClick)="openDecisionDialog(application, true)" />
+            <p-button label="Refuser" size="small" severity="danger" [outlined]="true" (onClick)="openDecisionDialog(application, false)" />
+          }
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr><td colspan="5" class="empty-state"><i class="pi pi-file-edit"></i><p>Aucune candidature reçue pour cette unité.</p></td></tr>
+    </ng-template>
+  </p-table>
+</div>
 
 <div class="surface-card">
   <div class="section-header">
@@ -48,22 +97,31 @@
         <th>Début</th>
         <th>Fin</th>
         <th>Loyer mensuel</th>
+        <th>Dépôt de garantie</th>
         <th>Statut</th>
         <th></th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-lease>
-      <tr class="clickable-row" (click)="openLease(lease)">
-        <td>{{ lease.tenantIds.length ? lease.tenantIds.map(tenantName).join(', ') : '—' }}</td>
-        <td>{{ lease.startDate | date: 'd MMM yyyy' }}</td>
-        <td>{{ lease.endDate ? (lease.endDate | date: 'd MMM yyyy') : 'Indéterminée' }}</td>
-        <td>{{ lease.monthlyRent | currency: 'CAD' : 'symbol-narrow' : '1.0-0' }}</td>
-        <td><p-tag [severity]="leaseStatusSeverity[lease.status]" [value]="leaseStatusLabels[lease.status]" /></td>
-        <td><p-button icon="pi pi-chevron-right" [text]="true" [rounded]="true" severity="secondary" /></td>
+      <tr>
+        <td class="clickable-row" (click)="openLease(lease)">{{ lease.tenantIds.length ? lease.tenantIds.map(tenantName).join(', ') : '—' }}</td>
+        <td class="clickable-row" (click)="openLease(lease)">{{ lease.startDate | date: 'd MMM yyyy' }}</td>
+        <td class="clickable-row" (click)="openLease(lease)">{{ lease.endDate ? (lease.endDate | date: 'd MMM yyyy') : 'Indéterminée' }}</td>
+        <td class="clickable-row" (click)="openLease(lease)">{{ lease.monthlyRent | currency: 'CAD' : 'symbol-narrow' : '1.0-0' }}</td>
+        <td>
+          {{ lease.securityDeposit | currency: 'CAD' : 'symbol-narrow' : '1.0-0' }}
+          @if (lease.securityDepositPaidAt) {
+            <p-tag severity="success" value="Versé" styleClass="ml-2" />
+          } @else {
+            <p-button label="Enregistrer" size="small" [text]="true" (onClick)="recordSecurityDepositPayment(lease)" />
+          }
+        </td>
+        <td class="clickable-row" (click)="openLease(lease)"><p-tag [severity]="leaseStatusSeverity[lease.status]" [value]="leaseStatusLabels[lease.status]" /></td>
+        <td><p-button icon="pi pi-chevron-right" [text]="true" [rounded]="true" severity="secondary" (onClick)="openLease(lease)" /></td>
       </tr>
     </ng-template>
     <ng-template pTemplate="emptymessage">
-      <tr><td colspan="6" class="empty-state"><i class="pi pi-file-edit"></i><p>Aucun bail pour cette unité.</p></td></tr>
+      <tr><td colspan="7" class="empty-state"><i class="pi pi-file-edit"></i><p>Aucun bail pour cette unité.</p></td></tr>
     </ng-template>
   </p-table>
 </div>
@@ -95,13 +153,49 @@
         <p-datepicker inputId="endDate" formControlName="endDate" dateFormat="yy-mm-dd" styleClass="w-full" />
       </div>
     </div>
-    <div class="field">
-      <label for="monthlyRent">Loyer mensuel ($)</label>
-      <p-inputnumber inputId="monthlyRent" formControlName="monthlyRent" mode="currency" currency="CAD" locale="fr-CA" styleClass="w-full" />
+    <div class="field-row">
+      <div class="field">
+        <label for="monthlyRent">Loyer mensuel ($)</label>
+        <p-inputnumber inputId="monthlyRent" formControlName="monthlyRent" mode="currency" currency="CAD" locale="fr-CA" styleClass="w-full" />
+      </div>
+      <div class="field">
+        <label for="securityDeposit">Dépôt de garantie ($)</label>
+        <p-inputnumber inputId="securityDeposit" formControlName="securityDeposit" mode="currency" currency="CAD" locale="fr-CA" styleClass="w-full" />
+      </div>
     </div>
     <div class="dialog-actions">
       <p-button label="Annuler" severity="secondary" [text]="true" (onClick)="dialogVisible.set(false)" type="button" />
       <p-button label="Créer le bail" icon="pi pi-check" type="submit" [loading]="submitting()" />
+    </div>
+  </form>
+</p-dialog>
+
+<p-dialog header="Évaluer la candidature" [modal]="true" [(visible)]="reviewDialogVisible" [style]="{ width: '28rem' }">
+  <form [formGroup]="reviewForm" (ngSubmit)="submitReview()" class="entity-form">
+    <div class="field">
+      <label for="solvencyScore">Score de solvabilité (0-100)</label>
+      <p-inputnumber inputId="solvencyScore" formControlName="solvencyScore" [min]="0" [max]="100" styleClass="w-full" />
+    </div>
+    <div class="field">
+      <label for="reviewComments">Commentaires internes</label>
+      <textarea pTextarea id="reviewComments" formControlName="reviewComments" class="w-full" rows="3"></textarea>
+    </div>
+    <div class="dialog-actions">
+      <p-button label="Annuler" severity="secondary" [text]="true" (onClick)="reviewDialogVisible.set(false)" type="button" />
+      <p-button label="Enregistrer" icon="pi pi-check" type="submit" [loading]="applicationActionSubmitting()" />
+    </div>
+  </form>
+</p-dialog>
+
+<p-dialog header="Décision sur la candidature" [modal]="true" [(visible)]="decisionDialogVisible" [style]="{ width: '28rem' }">
+  <form [formGroup]="decisionForm" (ngSubmit)="submitDecision()" class="entity-form">
+    <div class="field">
+      <label for="decisionReason">Motif (optionnel)</label>
+      <textarea pTextarea id="decisionReason" formControlName="decisionReason" class="w-full" rows="3"></textarea>
+    </div>
+    <div class="dialog-actions">
+      <p-button label="Annuler" severity="secondary" [text]="true" (onClick)="decisionDialogVisible.set(false)" type="button" />
+      <p-button label="Confirmer" icon="pi pi-check" type="submit" [loading]="applicationActionSubmitting()" />
     </div>
   </form>
 </p-dialog>

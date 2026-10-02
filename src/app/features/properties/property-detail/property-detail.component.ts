@@ -39,13 +39,16 @@ import {
 } from '../../../core/models/maintenance.model';
 import { OwnerResponse, OwnerType, PropertyOwnerResponse } from '../../../core/models/owner.model';
 import {
+  BUILDING_STATUS_LABELS,
   PROPERTY_STATUS_LABELS,
   PROPERTY_STATUS_SEVERITY,
   PROPERTY_TYPE_LABELS,
   PropertyResponse,
   UNIT_STATUS_LABELS,
   UNIT_STATUS_SEVERITY,
+  UNIT_TYPE_LABELS,
   UnitResponse,
+  UnitType,
 } from '../../../core/models/property.model';
 
 @Component({
@@ -94,6 +97,8 @@ export class PropertyDetailComponent {
   readonly statusSeverity = PROPERTY_STATUS_SEVERITY;
   readonly unitStatusLabels = UNIT_STATUS_LABELS;
   readonly unitStatusSeverity = UNIT_STATUS_SEVERITY;
+  readonly unitTypeLabels = UNIT_TYPE_LABELS;
+  readonly buildingStatusLabels = BUILDING_STATUS_LABELS;
   readonly maintenancePriorityLabels = MAINTENANCE_PRIORITY_LABELS;
   readonly maintenancePrioritySeverity = MAINTENANCE_PRIORITY_SEVERITY;
   readonly maintenanceStatusLabels = MAINTENANCE_STATUS_LABELS;
@@ -105,6 +110,7 @@ export class PropertyDetailComponent {
   readonly units = signal<UnitResponse[]>([]);
   readonly unitDialogVisible = signal(false);
   readonly unitSubmitting = signal(false);
+  readonly unitTypeOptions = Object.entries(UNIT_TYPE_LABELS).map(([value, label]) => ({ label, value }));
   readonly unitForm = this.fb.nonNullable.group({
     label: ['', [Validators.required, Validators.maxLength(50)]],
     principal: [false],
@@ -112,6 +118,8 @@ export class PropertyDetailComponent {
     areaSquareMeters: this.fb.control<number | null>(null),
     bedrooms: this.fb.control<number | null>(null),
     bathrooms: this.fb.control<number | null>(null),
+    type: this.fb.control<UnitType | null>(null),
+    description: this.fb.control<string | null>(null, Validators.maxLength(2000)),
   });
 
   // --- Owners --------------------------------------------------------

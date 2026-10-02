@@ -11,6 +11,10 @@ export type PropertyStatus = 'VACANTE' | 'OCCUPEE' | 'EN_MAINTENANCE' | 'HORS_MA
 
 export type UnitStatus = 'DISPONIBLE' | 'OCCUPEE' | 'EN_MAINTENANCE';
 
+export type BuildingStatus = 'NEUF' | 'RENOVE' | 'A_RENOVER';
+
+export type UnitType = 'STUDIO' | 'UNE_CHAMBRE' | 'DEUX_CHAMBRES' | 'TROIS_CHAMBRES' | 'QUATRE_CHAMBRES_PLUS';
+
 export interface PropertyResponse {
   id: string;
   organizationId: string;
@@ -20,6 +24,14 @@ export interface PropertyResponse {
   province: string;
   postalCode: string;
   status: PropertyStatus;
+  cadastreNumber: string | null;
+  taxId: string | null;
+  buildingStatus: BuildingStatus | null;
+  yearBuilt: number | null;
+  floorCount: number | null;
+  totalSurfaceArea: number | null;
+  estimatedValue: number | null;
+  description: string | null;
   createdAt: string;
 }
 
@@ -30,6 +42,14 @@ export interface CreatePropertyRequest {
   city: string;
   province: string;
   postalCode: string;
+  cadastreNumber: string | null;
+  taxId: string | null;
+  buildingStatus: BuildingStatus | null;
+  yearBuilt: number | null;
+  floorCount: number | null;
+  totalSurfaceArea: number | null;
+  estimatedValue: number | null;
+  description: string | null;
 }
 
 export interface UnitResponse {
@@ -41,6 +61,8 @@ export interface UnitResponse {
   areaSquareMeters: number | null;
   bedrooms: number | null;
   bathrooms: number | null;
+  type: UnitType | null;
+  description: string | null;
   status: UnitStatus;
   createdAt: string;
 }
@@ -52,6 +74,8 @@ export interface CreateUnitRequest {
   areaSquareMeters: number | null;
   bedrooms: number | null;
   bathrooms: number | null;
+  type: UnitType | null;
+  description: string | null;
 }
 
 export const PROPERTY_TYPE_LABELS: Record<string, string> = {
@@ -90,4 +114,18 @@ export const UNIT_STATUS_SEVERITY: Record<string, 'success' | 'warn' | 'info'> =
   DISPONIBLE: 'warn',
   OCCUPEE: 'success',
   EN_MAINTENANCE: 'info',
+};
+
+export const BUILDING_STATUS_LABELS: Record<string, string> = {
+  NEUF: 'Neuf',
+  RENOVE: 'Rénové',
+  A_RENOVER: 'À rénover',
+};
+
+export const UNIT_TYPE_LABELS: Record<string, string> = {
+  STUDIO: 'Studio',
+  UNE_CHAMBRE: '1 chambre',
+  DEUX_CHAMBRES: '2 chambres',
+  TROIS_CHAMBRES: '3 chambres',
+  QUATRE_CHAMBRES_PLUS: '4 chambres et plus',
 };

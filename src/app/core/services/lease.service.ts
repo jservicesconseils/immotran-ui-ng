@@ -24,4 +24,8 @@ export class LeaseService {
   list(propertyId: string, unitId: string): Observable<LeaseResponse[]> {
     return this.http.get<LeaseResponse[]>(this.leasesUrl(propertyId, unitId));
   }
+
+  recordSecurityDepositPayment(propertyId: string, unitId: string, leaseId: string): Observable<LeaseResponse> {
+    return this.http.put<LeaseResponse>(`${this.leasesUrl(propertyId, unitId)}/${leaseId}/depot-garantie`, {});
+  }
 }

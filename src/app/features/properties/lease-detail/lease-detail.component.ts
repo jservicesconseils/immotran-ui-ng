@@ -112,6 +112,18 @@ export class LeaseDetailComponent {
     this.financeService.listPayments(this.propertyId, this.unitId, this.leaseId).subscribe((payments) => this.payments.set(payments));
   }
 
+  recordSecurityDepositPayment(): void {
+    this.leaseService.recordSecurityDepositPayment(this.propertyId, this.unitId, this.leaseId).subscribe({
+      next: (lease) => {
+        this.lease.set(lease);
+        this.messageService.add({ severity: 'success', summary: 'Dépôt de garantie enregistré' });
+      },
+      error: () => {
+        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: "L'enregistrement du dépôt a échoué." });
+      },
+    });
+  }
+
   openPaymentDialog(): void {
     this.paymentForm.reset();
     this.paymentDialogVisible.set(true);

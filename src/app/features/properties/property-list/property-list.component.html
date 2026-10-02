@@ -91,6 +91,60 @@
       <input pInputText id="postalCode" formControlName="postalCode" class="w-full" placeholder="H1A 1A1" />
     </div>
 
+    <p class="form-section-title">Détails complémentaires (optionnel)</p>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="cadastreNumber">Numéro de cadastre</label>
+        <input pInputText id="cadastreNumber" formControlName="cadastreNumber" class="w-full" placeholder="1 234 567" />
+      </div>
+      <div class="field">
+        <label for="taxId">Numéro fiscal</label>
+        <input pInputText id="taxId" formControlName="taxId" class="w-full" />
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="buildingStatus">État du bâtiment</label>
+        <p-select
+          inputId="buildingStatus"
+          formControlName="buildingStatus"
+          [options]="buildingStatusOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Sélectionner"
+          styleClass="w-full"
+          [showClear]="true"
+        />
+      </div>
+      <div class="field">
+        <label for="yearBuilt">Année de construction</label>
+        <p-inputnumber inputId="yearBuilt" formControlName="yearBuilt" [useGrouping]="false" styleClass="w-full" />
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="floorCount">Nombre d'étages</label>
+        <p-inputnumber inputId="floorCount" formControlName="floorCount" [min]="0" styleClass="w-full" />
+      </div>
+      <div class="field">
+        <label for="totalSurfaceArea">Superficie totale (m²)</label>
+        <p-inputnumber inputId="totalSurfaceArea" formControlName="totalSurfaceArea" [min]="0" styleClass="w-full" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="estimatedValue">Valeur estimée ($)</label>
+      <p-inputnumber inputId="estimatedValue" formControlName="estimatedValue" mode="currency" currency="CAD" locale="fr-CA" styleClass="w-full" />
+    </div>
+
+    <div class="field">
+      <label for="description">Description</label>
+      <textarea pTextarea id="description" formControlName="description" class="w-full" rows="3"></textarea>
+    </div>
+
     <div class="dialog-actions">
       <p-button label="Annuler" severity="secondary" [text]="true" (onClick)="dialogVisible.set(false)" type="button" />
       <p-button label="Créer la propriété" icon="pi pi-check" type="submit" [loading]="submitting()" />

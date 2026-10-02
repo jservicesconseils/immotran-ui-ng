@@ -1,0 +1,93 @@
+<div class="apply-page">
+  <div class="apply-card surface-card">
+    <div class="apply-header">
+      <span class="icon-box icon-box-lg icon-box-primary"><i class="pi pi-file-edit"></i></span>
+      <div>
+        <h1>Candidature de location</h1>
+        <p>Remplissez ce formulaire pour soumettre votre candidature. Aucun compte requis.</p>
+      </div>
+    </div>
+
+    @if (submitted()) {
+      <p-message severity="success" styleClass="w-full">
+        Votre candidature a été transmise avec succès. L'équipe de gestion communiquera avec vous après l'étude de votre dossier.
+      </p-message>
+    } @else {
+      @if (submissionFailed()) {
+        <p-message severity="error" styleClass="w-full">
+          L'envoi de votre candidature a échoué. Vérifiez vos informations et réessayez.
+        </p-message>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="submit()" class="apply-form">
+        <p class="form-section-title">Vos coordonnées</p>
+        <div class="field-row">
+          <div class="field">
+            <label for="firstName">Prénom</label>
+            <input pInputText id="firstName" formControlName="firstName" class="w-full" />
+          </div>
+          <div class="field">
+            <label for="lastName">Nom</label>
+            <input pInputText id="lastName" formControlName="lastName" class="w-full" />
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="email">Courriel</label>
+            <input pInputText id="email" type="email" formControlName="email" class="w-full" />
+          </div>
+          <div class="field">
+            <label for="phone">Téléphone</label>
+            <input pInputText id="phone" formControlName="phone" class="w-full" placeholder="514-555-0100" />
+          </div>
+        </div>
+
+        <p class="form-section-title">Situation financière (optionnel)</p>
+        <div class="field-row">
+          <div class="field">
+            <label for="employerName">Employeur</label>
+            <input pInputText id="employerName" formControlName="employerName" class="w-full" />
+          </div>
+          <div class="field">
+            <label for="monthlyIncome">Revenu mensuel ($)</label>
+            <p-inputnumber inputId="monthlyIncome" formControlName="monthlyIncome" mode="currency" currency="CAD" locale="fr-CA" styleClass="w-full" />
+          </div>
+        </div>
+
+        <p class="form-section-title">Références</p>
+        <div formArrayName="references" class="references-list">
+          @for (reference of references.controls; track reference; let i = $index) {
+            <div [formGroupName]="i" class="reference-group">
+              <div class="field-row">
+                <div class="field">
+                  <label [for]="'refName' + i">Nom</label>
+                  <input pInputText [id]="'refName' + i" formControlName="name" class="w-full" />
+                </div>
+                <div class="field">
+                  <label [for]="'refPhone' + i">Téléphone (optionnel)</label>
+                  <input pInputText [id]="'refPhone' + i" formControlName="phone" class="w-full" />
+                </div>
+              </div>
+              <div class="field-row">
+                <div class="field">
+                  <label [for]="'refEmail' + i">Courriel (optionnel)</label>
+                  <input pInputText [id]="'refEmail' + i" formControlName="email" class="w-full" />
+                </div>
+                @if (references.length > 1) {
+                  <div class="field reference-remove">
+                    <p-button label="Retirer" severity="danger" [text]="true" size="small" (onClick)="removeReference(i)" type="button" />
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+        <p-button label="Ajouter une référence" icon="pi pi-plus" severity="secondary" [outlined]="true" size="small" (onClick)="addReference()" type="button" />
+
+        <div class="dialog-actions">
+          <p-button label="Soumettre ma candidature" icon="pi pi-send" type="submit" [loading]="submitting()" />
+        </div>
+      </form>
+    }
+  </div>
+</div>

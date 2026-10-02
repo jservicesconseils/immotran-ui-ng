@@ -11,6 +11,37 @@
     <p-tag [severity]="statusSeverity[property.status]" [value]="statusLabels[property.status]" styleClass="status-tag" />
   </div>
 
+  @if (property.cadastreNumber || property.taxId || property.buildingStatus || property.yearBuilt || property.floorCount || property.totalSurfaceArea || property.estimatedValue || property.description) {
+    <div class="surface-card info-panel">
+      <div class="info-grid">
+        @if (property.buildingStatus) {
+          <div class="info-item"><span class="info-label">État du bâtiment</span><span class="info-value">{{ buildingStatusLabels[property.buildingStatus] }}</span></div>
+        }
+        @if (property.yearBuilt) {
+          <div class="info-item"><span class="info-label">Année de construction</span><span class="info-value">{{ property.yearBuilt }}</span></div>
+        }
+        @if (property.floorCount) {
+          <div class="info-item"><span class="info-label">Nombre d'étages</span><span class="info-value">{{ property.floorCount }}</span></div>
+        }
+        @if (property.totalSurfaceArea) {
+          <div class="info-item"><span class="info-label">Superficie totale</span><span class="info-value">{{ property.totalSurfaceArea }} m²</span></div>
+        }
+        @if (property.estimatedValue) {
+          <div class="info-item"><span class="info-label">Valeur estimée</span><span class="info-value">{{ property.estimatedValue | currency: 'CAD' : 'symbol-narrow' : '1.0-0' }}</span></div>
+        }
+        @if (property.cadastreNumber) {
+          <div class="info-item"><span class="info-label">Numéro de cadastre</span><span class="info-value">{{ property.cadastreNumber }}</span></div>
+        }
+        @if (property.taxId) {
+          <div class="info-item"><span class="info-label">Numéro fiscal</span><span class="info-value">{{ property.taxId }}</span></div>
+        }
+      </div>
+      @if (property.description) {
+        <p class="info-description">{{ property.description }}</p>
+      }
+    </div>
+  }
+
   <div class="surface-card">
     <p-tabs value="units">
       <p-tablist>
@@ -31,6 +62,7 @@
             <ng-template pTemplate="header">
               <tr>
                 <th>Unité</th>
+                <th>Type</th>
                 <th>Statut</th>
                 <th>Étage</th>
                 <th>Superficie</th>
@@ -48,6 +80,7 @@
                     }
                   </div>
                 </td>
+                <td>{{ unit.type ? unitTypeLabels[unit.type] : '—' }}</td>
                 <td><p-tag [severity]="unitStatusSeverity[unit.status]" [value]="unitStatusLabels[unit.status]" /></td>
                 <td>{{ unit.floor ?? '—' }}</td>
                 <td>{{ unit.areaSquareMeters ? unit.areaSquareMeters + ' m²' : '—' }}</td>
@@ -56,7 +89,7 @@
               </tr>
             </ng-template>
             <ng-template pTemplate="emptymessage">
-              <tr><td colspan="6" class="empty-state"><i class="pi pi-home"></i><p>Aucune unité pour le moment.</p></td></tr>
+              <tr><td colspan="7" class="empty-state"><i class="pi pi-home"></i><p>Aucune unité pour le moment.</p></td></tr>
             </ng-template>
           </p-table>
         </p-tabpanel>
@@ -223,6 +256,14 @@
         <label for="bathrooms">Salles de bain</label>
         <p-inputnumber inputId="bathrooms" formControlName="bathrooms" styleClass="w-full" />
       </div>
+    </div>
+    <div class="field">
+      <label for="unitType">Type de logement</label>
+      <p-select inputId="unitType" formControlName="type" [options]="unitTypeOptions" optionLabel="label" optionValue="value" placeholder="Sélectionner" styleClass="w-full" [showClear]="true" />
+    </div>
+    <div class="field">
+      <label for="unitDescription">Description (optionnel)</label>
+      <textarea pTextarea id="unitDescription" formControlName="description" class="w-full" rows="3"></textarea>
     </div>
     <div class="dialog-actions">
       <p-button label="Annuler" severity="secondary" [text]="true" (onClick)="unitDialogVisible.set(false)" type="button" />
