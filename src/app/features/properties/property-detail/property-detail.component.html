@@ -1,0 +1,337 @@
+@if (property(); as property) {
+  <div class="page-header">
+    <div class="property-header">
+      <p-button icon="pi pi-arrow-left" [text]="true" [rounded]="true" severity="secondary" (onClick)="goBack()" />
+      <span class="icon-box icon-box-lg icon-box-primary"><i class="pi pi-building"></i></span>
+      <div>
+        <h1>{{ property.street }}</h1>
+        <p>{{ property.city }}, {{ property.province }} {{ property.postalCode }} · {{ typeLabels[property.type] }}</p>
+      </div>
+    </div>
+    <p-tag [severity]="statusSeverity[property.status]" [value]="statusLabels[property.status]" styleClass="status-tag" />
+  </div>
+
+  <div class="surface-card">
+    <p-tabs value="units">
+      <p-tablist>
+        <p-tab value="units"><i class="pi pi-home"></i> Unités</p-tab>
+        <p-tab value="owners"><i class="pi pi-id-card"></i> Propriétaires</p-tab>
+        <p-tab value="finance"><i class="pi pi-wallet"></i> Finances</p-tab>
+        <p-tab value="maintenance"><i class="pi pi-wrench"></i> Maintenance</p-tab>
+        <p-tab value="documents"><i class="pi pi-file"></i> Documents</p-tab>
+      </p-tablist>
+
+      <p-tabpanels>
+        <!-- UNITS -->
+        <p-tabpanel value="units">
+          <div class="tab-actions">
+            <p-button label="Ajouter une unité" icon="pi pi-plus" size="small" (onClick)="openUnitDialog()" />
+          </div>
+          <p-table [value]="units()" dataKey="id" [rowHover]="true" responsiveLayout="scroll">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Unité</th>
+                <th>Statut</th>
+                <th>Étage</th>
+                <th>Superficie</th>
+                <th>Ch. / SdB</th>
+                <th></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-unit>
+              <tr class="clickable-row" (click)="openUnit(unit)">
+                <td>
+                  <div class="entity-name">
+                    {{ unit.label }}
+                    @if (unit.principal) {
+                      <p-tag severity="secondary" value="Principale" styleClass="ml-2" />
+                    }
+                  </div>
+                </td>
+                <td><p-tag [severity]="unitStatusSeverity[unit.status]" [value]="unitStatusLabels[unit.status]" /></td>
+                <td>{{ unit.floor ?? '—' }}</td>
+                <td>{{ unit.areaSquareMeters ? unit.areaSquareMeters + ' m²' : '—' }}</td>
+                <td>{{ unit.bedrooms ?? '—' }} / {{ unit.bathrooms ?? '—' }}</td>
+                <td><p-button icon="pi pi-chevron-right" [text]="true" [rounded]="true" severity="secondary" /></td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr><td colspan="6" class="empty-state"><i class="pi pi-home"></i><p>Aucune unité pour le moment.</p></td></tr>
+            </ng-template>
+          </p-table>
+        </p-tabpanel>
+
+        <!-- OWNERS -->
+        <p-tabpanel value="owners">
+          <div class="tab-actions">
+            <p-button label="Associer un propriétaire" icon="pi pi-plus" size="small" (onClick)="openOwnerDialog()" />
+          </div>
+          <p-table [value]="propertyOwners()" dataKey="id" [rowHover]="true" responsiveLayout="scroll">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Propriétaire</th>
+                <th>Part</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-po>
+              <tr>
+                <td>
+                  <div class="entity-name">
+                    <span class="icon-box icon-box-sm icon-box-warning"><i class="pi pi-id-card"></i></span>
+                    {{ po.ownerName }}
+                  </div>
+                </td>
+                <td>{{ po.sharePercentage }}%</td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr><td colspan="2" class="empty-state"><i class="pi pi-id-card"></i><p>Aucun propriétaire associé.</p></td></tr>
+            </ng-template>
+          </p-table>
+        </p-tabpanel>
+
+        <!-- FINANCE -->
+        <p-tabpanel value="finance">
+          <div class="tab-actions">
+            <p-button label="Ajouter une transaction" icon="pi pi-plus" size="small" (onClick)="openTransactionDialog()" />
+          </div>
+          <p-table [value]="transactions()" dataKey="id" [rowHover]="true" responsiveLayout="scroll">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Catégorie</th>
+                <th>Description</th>
+                <th style="text-align: right">Montant</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-tx>
+              <tr>
+                <td>{{ tx.transactionDate | date: 'd MMM yyyy' }}</td>
+                <td><p-tag [severity]="tx.type === 'REVENU' ? 'success' : 'danger'" [value]="tx.type === 'REVENU' ? 'Revenu' : 'Dépense'" /></td>
+                <td>{{ transactionCategoryLabels[tx.category] }}</td>
+                <td>{{ tx.description || '—' }}</td>
+                <td style="text-align: right" [class.amount-positive]="tx.type === 'REVENU'" [class.amount-negative]="tx.type === 'DEPENSE'">
+                  {{ tx.type === 'REVENU' ? '+' : '-' }}{{ tx.amount | currency: 'CAD' : 'symbol-narrow' : '1.0-0' }}
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr><td colspan="5" class="empty-state"><i class="pi pi-wallet"></i><p>Aucune transaction enregistrée.</p></td></tr>
+            </ng-template>
+          </p-table>
+        </p-tabpanel>
+
+        <!-- MAINTENANCE -->
+        <p-tabpanel value="maintenance">
+          <div class="tab-actions">
+            <p-button label="Nouvelle demande" icon="pi pi-plus" size="small" (onClick)="openMaintenanceDialog()" />
+          </div>
+          <p-table [value]="maintenanceRequests()" dataKey="id" [rowHover]="true" responsiveLayout="scroll">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Description</th>
+                <th>Priorité</th>
+                <th>Statut</th>
+                <th>Prestataire</th>
+                <th style="text-align: right">Coût</th>
+                <th></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-request>
+              <tr>
+                <td class="description-cell">{{ request.description }}</td>
+                <td><p-tag [severity]="maintenancePrioritySeverity[request.priority]" [value]="maintenancePriorityLabels[request.priority]" /></td>
+                <td><p-tag [severity]="maintenanceStatusSeverity[request.status]" [value]="maintenanceStatusLabels[request.status]" /></td>
+                <td>{{ request.vendorName || '—' }}</td>
+                <td style="text-align: right">{{ request.cost ? (request.cost | currency: 'CAD' : 'symbol-narrow' : '1.0-0') : '—' }}</td>
+                <td>
+                  @if (request.status === 'OUVERTE' || request.status === 'EN_COURS') {
+                    <p-button label="Clôturer" size="small" severity="secondary" [outlined]="true" (onClick)="openCloseDialog(request)" />
+                  }
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr><td colspan="6" class="empty-state"><i class="pi pi-wrench"></i><p>Aucune demande de maintenance.</p></td></tr>
+            </ng-template>
+          </p-table>
+        </p-tabpanel>
+
+        <!-- DOCUMENTS -->
+        <p-tabpanel value="documents">
+          <div class="tab-actions">
+            <p-button label="Ajouter un document" icon="pi pi-plus" size="small" (onClick)="openDocumentDialog()" />
+          </div>
+          <p-table [value]="documents()" dataKey="id" [rowHover]="true" responsiveLayout="scroll">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Fichier</th>
+                <th>Type</th>
+                <th>Ajouté le</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-doc>
+              <tr>
+                <td>
+                  <div class="entity-name">
+                    <span class="icon-box icon-box-sm icon-box-neutral"><i class="pi pi-file"></i></span>
+                    {{ doc.fileName }}
+                  </div>
+                </td>
+                <td>{{ documentTypeLabels[doc.type] }}</td>
+                <td>{{ doc.uploadedAt | date: 'd MMM yyyy' }}</td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr><td colspan="3" class="empty-state"><i class="pi pi-file"></i><p>Aucun document enregistré.</p></td></tr>
+            </ng-template>
+          </p-table>
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
+  </div>
+}
+
+<!-- Dialog: nouvelle unite -->
+<p-dialog header="Nouvelle unité" [modal]="true" [(visible)]="unitDialogVisible" [style]="{ width: '30rem' }">
+  <form [formGroup]="unitForm" (ngSubmit)="submitUnit()" class="entity-form">
+    <div class="field">
+      <label for="label">Étiquette</label>
+      <input pInputText id="label" formControlName="label" class="w-full" placeholder='ex. "304" ou "Principal"' />
+    </div>
+    <div class="field-checkbox">
+      <p-checkbox formControlName="principal" [binary]="true" inputId="principal" />
+      <label for="principal">Unité principale (maison individuelle)</label>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label for="floor">Étage</label>
+        <p-inputnumber inputId="floor" formControlName="floor" styleClass="w-full" />
+      </div>
+      <div class="field">
+        <label for="area">Superficie (m²)</label>
+        <p-inputnumber inputId="area" formControlName="areaSquareMeters" styleClass="w-full" />
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label for="bedrooms">Chambres</label>
+        <p-inputnumber inputId="bedrooms" formControlName="bedrooms" styleClass="w-full" />
+      </div>
+      <div class="field">
+        <label for="bathrooms">Salles de bain</label>
+        <p-inputnumber inputId="bathrooms" formControlName="bathrooms" styleClass="w-full" />
+      </div>
+    </div>
+    <div class="dialog-actions">
+      <p-button label="Annuler" severity="secondary" [text]="true" (onClick)="unitDialogVisible.set(false)" type="button" />
+      <p-button label="Créer" icon="pi pi-check" type="submit" [loading]="unitSubmitting()" />
+    </div>
+  </form>
+</p-dialog>
+
+<!-- Dialog: associer proprietaire -->
+<p-dialog header="Associer un propriétaire" [modal]="true" [(visible)]="ownerDialogVisible" [style]="{ width: '28rem' }">
+  <form [formGroup]="ownerForm" (ngSubmit)="submitOwner()" class="entity-form">
+    <div class="field">
+      <label for="ownerId">Propriétaire</label>
+      <p-select inputId="ownerId" formControlName="ownerId" [options]="availableOwners()" optionLabel="name" optionValue="id" placeholder="Sélectionner un propriétaire" styleClass="w-full" />
+    </div>
+    <div class="field">
+      <label for="share">Part de propriété (%)</label>
+      <p-inputnumber inputId="share" formControlName="sharePercentage" suffix=" %" [min]="0" [max]="100" styleClass="w-full" />
+    </div>
+    <div class="dialog-actions">
+      <p-button label="Annuler" severity="secondary" [text]="true" (onClick)="ownerDialogVisible.set(false)" type="button" />
+      <p-button label="Associer" icon="pi pi-check" type="submit" [loading]="ownerSubmitting()" />
+    </div>
+  </form>
+</p-dialog>
+
+<!-- Dialog: nouvelle transaction -->
+<p-dialog header="Nouvelle transaction" [modal]="true" [(visible)]="transactionDialogVisible" [style]="{ width: '30rem' }">
+  <form [formGroup]="transactionForm" (ngSubmit)="submitTransaction()" class="entity-form">
+    <div class="field-row">
+      <div class="field">
+        <label for="txType">Type</label>
+        <p-select inputId="txType" formControlName="type" [options]="transactionTypeOptions" optionLabel="label" optionValue="value" placeholder="Revenu ou dépense" styleClass="w-full" />
+      </div>
+      <div class="field">
+        <label for="txCategory">Catégorie</label>
+        <p-select inputId="txCategory" formControlName="category" [options]="transactionCategoryOptions" optionLabel="label" optionValue="value" placeholder="Catégorie" styleClass="w-full" />
+      </div>
+    </div>
+    <div class="field">
+      <label for="amount">Montant ($)</label>
+      <p-inputnumber inputId="amount" formControlName="amount" mode="currency" currency="CAD" locale="fr-CA" styleClass="w-full" />
+    </div>
+    <div class="field">
+      <label for="txDate">Date</label>
+      <p-datepicker inputId="txDate" formControlName="transactionDate" dateFormat="yy-mm-dd" styleClass="w-full" />
+    </div>
+    <div class="field">
+      <label for="description">Description (optionnel)</label>
+      <input pInputText id="description" formControlName="description" class="w-full" />
+    </div>
+    <div class="dialog-actions">
+      <p-button label="Annuler" severity="secondary" [text]="true" (onClick)="transactionDialogVisible.set(false)" type="button" />
+      <p-button label="Enregistrer" icon="pi pi-check" type="submit" [loading]="transactionSubmitting()" />
+    </div>
+  </form>
+</p-dialog>
+
+<!-- Dialog: nouvelle demande de maintenance -->
+<p-dialog header="Nouvelle demande de maintenance" [modal]="true" [(visible)]="maintenanceDialogVisible" [style]="{ width: '30rem' }">
+  <form [formGroup]="maintenanceForm" (ngSubmit)="submitMaintenance()" class="entity-form">
+    <div class="field">
+      <label for="mDescription">Description</label>
+      <textarea pTextarea id="mDescription" formControlName="description" class="w-full" rows="3" placeholder="ex. Fuite sous l'évier de la cuisine"></textarea>
+    </div>
+    <div class="field">
+      <label for="priority">Priorité</label>
+      <p-select inputId="priority" formControlName="priority" [options]="priorityOptions" optionLabel="label" optionValue="value" placeholder="Priorité" styleClass="w-full" />
+    </div>
+    <div class="dialog-actions">
+      <p-button label="Annuler" severity="secondary" [text]="true" (onClick)="maintenanceDialogVisible.set(false)" type="button" />
+      <p-button label="Créer" icon="pi pi-check" type="submit" [loading]="maintenanceSubmitting()" />
+    </div>
+  </form>
+</p-dialog>
+
+<!-- Dialog: cloturer la maintenance -->
+<p-dialog header="Clôturer la demande" [modal]="true" [(visible)]="closeDialogVisible" [style]="{ width: '26rem' }">
+  <form [formGroup]="closeForm" (ngSubmit)="submitClose()" class="entity-form">
+    <div class="field">
+      <label for="vendorName">Prestataire (optionnel)</label>
+      <input pInputText id="vendorName" formControlName="vendorName" class="w-full" placeholder="ex. Plomberie ABC" />
+    </div>
+    <div class="field">
+      <label for="cost">Coût (optionnel)</label>
+      <p-inputnumber inputId="cost" formControlName="cost" mode="currency" currency="CAD" locale="fr-CA" styleClass="w-full" />
+    </div>
+    <div class="dialog-actions">
+      <p-button label="Annuler" severity="secondary" [text]="true" (onClick)="closeDialogVisible.set(false)" type="button" />
+      <p-button label="Clôturer" icon="pi pi-check" type="submit" [loading]="maintenanceSubmitting()" />
+    </div>
+  </form>
+</p-dialog>
+
+<!-- Dialog: nouveau document -->
+<p-dialog header="Ajouter un document" [modal]="true" [(visible)]="documentDialogVisible" [style]="{ width: '28rem' }">
+  <form [formGroup]="documentForm" (ngSubmit)="submitDocument()" class="entity-form">
+    <div class="field">
+      <label for="docType">Type de document</label>
+      <p-select inputId="docType" formControlName="type" [options]="documentTypeOptions" optionLabel="label" optionValue="value" placeholder="Type" styleClass="w-full" />
+    </div>
+    <div class="field">
+      <label for="fileName">Nom du fichier</label>
+      <input pInputText id="fileName" formControlName="fileName" class="w-full" placeholder="ex. assurance-2026.pdf" />
+    </div>
+    <p class="field-hint">L'envoi réel du fichier vers le stockage (S3) sera ajouté plus tard — seules les métadonnées sont enregistrées ici.</p>
+    <div class="dialog-actions">
+      <p-button label="Annuler" severity="secondary" [text]="true" (onClick)="documentDialogVisible.set(false)" type="button" />
+      <p-button label="Enregistrer" icon="pi pi-check" type="submit" [loading]="documentSubmitting()" />
+    </div>
+  </form>
+</p-dialog>

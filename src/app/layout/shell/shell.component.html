@@ -1,0 +1,59 @@
+<div class="app-shell">
+  <aside class="app-sidebar">
+    <div class="app-brand">
+      <div class="icon-box icon-box-primary icon-box-lg">
+        <i class="pi pi-building"></i>
+      </div>
+      <div class="app-brand-text">
+        <span class="app-brand-name">Immotran</span>
+        <span class="app-brand-tagline">Gestion immobilière</span>
+      </div>
+    </div>
+
+    <nav class="app-nav">
+      @for (item of navItems; track item.route) {
+        <a
+          class="app-nav-item"
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: false }"
+        >
+          <span class="icon-box icon-box-sm" [ngClass]="item.iconClass">
+            <i [class]="item.icon"></i>
+          </span>
+          <span>{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+
+    <div class="app-sidebar-footer">
+      <p class="app-sidebar-footer-title">Besoin d'aide ?</p>
+      <p class="app-sidebar-footer-text">Cahier des charges v2 — plateforme canadienne multi-tenant.</p>
+    </div>
+  </aside>
+
+  <div class="app-main">
+    <header class="app-topbar">
+      <div class="app-topbar-org">
+        <span class="icon-box icon-box-sm icon-box-primary"><i class="pi pi-briefcase"></i></span>
+        <div>
+          <div class="app-topbar-org-name">{{ session()?.organizationName }}</div>
+          <div class="app-topbar-org-sub">Organisation active</div>
+        </div>
+      </div>
+
+      <div class="app-topbar-user">
+        <p-avatar [label]="initials()" shape="circle" styleClass="app-user-avatar" />
+        <div class="app-topbar-user-info">
+          <div class="app-topbar-user-name">{{ session()?.displayName }}</div>
+          <div class="app-topbar-user-sub">Connecté</div>
+        </div>
+        <p-button icon="pi pi-sign-out" [text]="true" [rounded]="true" severity="secondary" (onClick)="logout()" pTooltip="Déconnexion" />
+      </div>
+    </header>
+
+    <main class="app-content">
+      <router-outlet />
+    </main>
+  </div>
+</div>

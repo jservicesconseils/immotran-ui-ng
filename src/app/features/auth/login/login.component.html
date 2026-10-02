@@ -1,0 +1,68 @@
+<div class="login-page">
+  <div class="login-brand">
+    <div class="login-brand-content">
+      <div class="icon-box icon-box-lg" style="background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3); color: #fff;">
+        <i class="pi pi-building"></i>
+      </div>
+      <h1>Immotran</h1>
+      <p>La plateforme de gestion immobilière pensée pour le marché canadien — maisons, condos, immeubles multi-unités, un seul portefeuille.</p>
+
+      <ul class="login-brand-points">
+        <li><i class="pi pi-check-circle"></i> Propriétés, unités, baux et locataires centralisés</li>
+        <li><i class="pi pi-check-circle"></i> Suivi des loyers, dépenses et rentabilité</li>
+        <li><i class="pi pi-check-circle"></i> Maintenance et documents en un coup d'œil</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="login-form-side">
+    <form class="login-form surface-card" [formGroup]="form" (ngSubmit)="submit()">
+      <div class="login-form-header">
+        <div class="icon-box icon-box-primary icon-box-lg">
+          <i class="pi pi-sign-in"></i>
+        </div>
+        <h2>Connexion</h2>
+        <p>Accédez à votre portefeuille immobilier.</p>
+      </div>
+
+      <p-message severity="info" [text]="'Mode développement local : aucun fournisseur d\'identité (Cognito) n\'est encore déployé — ces champs créent simplement votre session locale.'" styleClass="w-full mb-4" />
+
+      <div class="field">
+        <label for="organizationName">Organisation</label>
+        <input
+          pInputText
+          id="organizationName"
+          formControlName="organizationName"
+          placeholder="ex. ABC Immobilier inc."
+          class="w-full"
+        />
+        @if (form.controls.organizationName.invalid && form.controls.organizationName.touched) {
+          <small class="field-error">Le nom de l'organisation est requis.</small>
+        }
+      </div>
+
+      <div class="field">
+        <label for="displayName">Votre nom</label>
+        <input
+          pInputText
+          id="displayName"
+          formControlName="displayName"
+          placeholder="ex. Jean Tremblay"
+          class="w-full"
+        />
+        @if (form.controls.displayName.invalid && form.controls.displayName.touched) {
+          <small class="field-error">Votre nom est requis.</small>
+        }
+      </div>
+
+      <p-button
+        type="submit"
+        label="Accéder à mon portefeuille"
+        icon="pi pi-arrow-right"
+        iconPos="right"
+        styleClass="w-full"
+        [loading]="submitting()"
+      />
+    </form>
+  </div>
+</div>

@@ -1,0 +1,99 @@
+<div class="page-header">
+  <div>
+    <h1>Propriétés</h1>
+    <p>Maisons, condos, duplex/triplex/quadruplex et immeubles multi-unités de votre portefeuille.</p>
+  </div>
+  <p-button label="Nouvelle propriété" icon="pi pi-plus" (onClick)="openDialog()" />
+</div>
+
+<div class="surface-card">
+  <p-table [value]="properties()" [loading]="loading()" dataKey="id" [rowHover]="true" responsiveLayout="scroll">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Adresse</th>
+        <th>Type</th>
+        <th>Statut</th>
+        <th>Créée le</th>
+        <th style="width: 6rem"></th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-property>
+      <tr class="clickable-row" (click)="openProperty(property)">
+        <td>
+          <div class="property-address">
+            <span class="icon-box icon-box-sm icon-box-primary"><i class="pi pi-building"></i></span>
+            <div>
+              <div class="property-street">{{ property.street }}</div>
+              <div class="property-city">{{ property.city }}, {{ property.province }} {{ property.postalCode }}</div>
+            </div>
+          </div>
+        </td>
+        <td>{{ typeLabels[property.type] }}</td>
+        <td><p-tag [severity]="statusSeverity[property.status]" [value]="statusLabels[property.status]" /></td>
+        <td>{{ property.createdAt | date: 'd MMM yyyy' }}</td>
+        <td>
+          <p-button icon="pi pi-chevron-right" [text]="true" [rounded]="true" severity="secondary" />
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="5" class="empty-state">
+          <i class="pi pi-building"></i>
+          <p>Aucune propriété pour le moment. Ajoutez votre première propriété pour commencer.</p>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<p-dialog header="Nouvelle propriété" [modal]="true" [(visible)]="dialogVisible" [style]="{ width: '34rem' }">
+  <form [formGroup]="form" (ngSubmit)="submit()" class="property-form">
+    <div class="field">
+      <label for="type">Type de propriété</label>
+      <p-select
+        inputId="type"
+        formControlName="type"
+        [options]="propertyTypeOptions"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Sélectionner un type"
+        styleClass="w-full"
+      />
+    </div>
+
+    <div class="field">
+      <label for="street">Rue</label>
+      <input pInputText id="street" formControlName="street" class="w-full" placeholder="123 rue des Lilas" />
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="city">Ville</label>
+        <input pInputText id="city" formControlName="city" class="w-full" placeholder="Montréal" />
+      </div>
+      <div class="field">
+        <label for="province">Province</label>
+        <p-select
+          inputId="province"
+          formControlName="province"
+          [options]="provinceOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Province"
+          styleClass="w-full"
+        />
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="postalCode">Code postal</label>
+      <input pInputText id="postalCode" formControlName="postalCode" class="w-full" placeholder="H1A 1A1" />
+    </div>
+
+    <div class="dialog-actions">
+      <p-button label="Annuler" severity="secondary" [text]="true" (onClick)="dialogVisible.set(false)" type="button" />
+      <p-button label="Créer la propriété" icon="pi pi-check" type="submit" [loading]="submitting()" />
+    </div>
+  </form>
+</p-dialog>

@@ -1,0 +1,68 @@
+<div class="page-header">
+  <div>
+    <h1>Tableau de bord</h1>
+    <p>Vue d'ensemble du portefeuille de {{ session()?.organizationName }}</p>
+  </div>
+</div>
+
+@if (loading()) {
+  <div class="dashboard-loading">
+    <p-progressSpinner styleClass="w-3rem h-3rem" strokeWidth="4" />
+  </div>
+} @else if (error()) {
+  <div class="surface-card dashboard-error">
+    <i class="pi pi-exclamation-triangle"></i>
+    <p>{{ error() }}</p>
+  </div>
+} @else {
+  <div class="kpi-grid">
+    @for (kpi of kpiCards(); track kpi.label) {
+      <div class="surface-card kpi-card">
+        <span class="icon-box icon-box-lg" [ngClass]="kpi.iconClass">
+          <i [class]="kpi.icon"></i>
+        </span>
+        <div class="kpi-card-body">
+          <div class="kpi-card-value">{{ kpi.value }}</div>
+          <div class="kpi-card-label">{{ kpi.label }}</div>
+          @if (kpi.hint) {
+            <div class="kpi-card-hint">{{ kpi.hint }}</div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="charts-grid">
+    <div class="surface-card chart-card">
+      <div class="chart-card-header">
+        <div>
+          <h3>Occupation du portefeuille</h3>
+          <p>Répartition des unités occupées et vacantes</p>
+        </div>
+        <span class="icon-box icon-box-sm icon-box-success"><i class="pi pi-key"></i></span>
+      </div>
+      <p-chart type="doughnut" [data]="occupancyChartData()" [options]="occupancyChartOptions" [height]="'260'" />
+    </div>
+
+    <div class="surface-card chart-card">
+      <div class="chart-card-header">
+        <div>
+          <h3>Revenus vs dépenses</h3>
+          <p>Cumul depuis la création du portefeuille</p>
+        </div>
+        <span class="icon-box icon-box-sm icon-box-primary"><i class="pi pi-chart-bar"></i></span>
+      </div>
+      <p-chart type="bar" [data]="financeChartData()" [options]="financeChartOptions" [height]="'260'" />
+
+      <div class="finance-summary">
+        <div>
+          <span class="finance-summary-label">Rentabilité nette</span>
+          <span class="finance-summary-value" [class.negative]="netProfit() < 0">
+            {{ netProfit() | currency: 'CAD' : 'symbol-narrow' : '1.0-0' }}
+          </span>
+        </div>
+        <p-tag [severity]="netProfit() >= 0 ? 'success' : 'danger'" [value]="netProfit() >= 0 ? 'Positive' : 'Négative'" />
+      </div>
+    </div>
+  </div>
+}

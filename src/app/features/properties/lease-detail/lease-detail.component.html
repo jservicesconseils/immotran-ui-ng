@@ -1,0 +1,97 @@
+<div class="page-header">
+  <div class="lease-header">
+    <p-button icon="pi pi-arrow-left" [text]="true" [rounded]="true" severity="secondary" (onClick)="goBack()" />
+    <span class="icon-box icon-box-lg icon-box-primary"><i class="pi pi-file-edit"></i></span>
+    <div>
+      <h1>Bail</h1>
+      @if (lease(); as lease) {
+        <p>{{ lease.tenantIds.map(tenantName).join(', ') }} · {{ lease.monthlyRent | currency: 'CAD' : 'symbol-narrow' : '1.0-0' }}/mois</p>
+      }
+    </div>
+  </div>
+  @if (lease(); as lease) {
+    <p-tag [severity]="leaseStatusSeverity[lease.status]" [value]="leaseStatusLabels[lease.status]" />
+  }
+</div>
+
+@if (lease(); as lease) {
+  <div class="lease-info-grid">
+    <div class="surface-card lease-info-card">
+      <span class="lease-info-label">Date de début</span>
+      <span class="lease-info-value">{{ lease.startDate | date: 'd MMM yyyy' }}</span>
+    </div>
+    <div class="surface-card lease-info-card">
+      <span class="lease-info-label">Date de fin</span>
+      <span class="lease-info-value">{{ lease.endDate ? (lease.endDate | date: 'd MMM yyyy') : 'Indéterminée' }}</span>
+    </div>
+    <div class="surface-card lease-info-card">
+      <span class="lease-info-label">Loyer mensuel</span>
+      <span class="lease-info-value">{{ lease.monthlyRent | currency: 'CAD' : 'symbol-narrow' : '1.0-0' }}</span>
+    </div>
+  </div>
+}
+
+<div class="surface-card">
+  <div class="section-header">
+    <h3>Échéancier de loyer</h3>
+    <p-button label="Nouvelle échéance" icon="pi pi-plus" size="small" (onClick)="openPaymentDialog()" />
+  </div>
+
+  <p-table [value]="payments()" dataKey="id" [rowHover]="true" responsiveLayout="scroll">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Échéance</th>
+        <th>Montant dû</th>
+        <th>Montant payé</th>
+        <th>Statut</th>
+        <th></th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-payment>
+      <tr>
+        <td>{{ payment.dueDate | date: 'd MMM yyyy' }}</td>
+        <td>{{ payment.amountDue | currency: 'CAD' : 'symbol-narrow' : '1.0-0' }}</td>
+        <td>{{ payment.amountPaid | currency: 'CAD' : 'symbol-narrow' : '1.0-0' }}</td>
+        <td><p-tag [severity]="paymentStatusSeverity[payment.status]" [value]="paymentStatusLabels[payment.status]" /></td>
+        <td>
+          @if (payment.status !== 'PAID') {
+            <p-button label="Enregistrer un paiement" size="small" severity="secondary" [outlined]="true" (onClick)="openRecordDialog(payment)" />
+          }
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr><td colspan="5" class="empty-state"><i class="pi pi-wallet"></i><p>Aucune échéance enregistrée.</p></td></tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<p-dialog header="Nouvelle échéance" [modal]="true" [(visible)]="paymentDialogVisible" [style]="{ width: '26rem' }">
+  <form [formGroup]="paymentForm" (ngSubmit)="submitPayment()" class="entity-form">
+    <div class="field">
+      <label for="dueDate">Date d'échéance</label>
+      <p-datepicker inputId="dueDate" formControlName="dueDate" dateFormat="yy-mm-dd" styleClass="w-full" />
+    </div>
+    <div class="field">
+      <label for="amountDue">Montant dû ($)</label>
+      <p-inputnumber inputId="amountDue" formControlName="amountDue" mode="currency" currency="CAD" locale="fr-CA" styleClass="w-full" />
+    </div>
+    <div class="dialog-actions">
+      <p-button label="Annuler" severity="secondary" [text]="true" (onClick)="paymentDialogVisible.set(false)" type="button" />
+      <p-button label="Créer" icon="pi pi-check" type="submit" [loading]="paymentSubmitting()" />
+    </div>
+  </form>
+</p-dialog>
+
+<p-dialog header="Enregistrer un paiement" [modal]="true" [(visible)]="recordDialogVisible" [style]="{ width: '24rem' }">
+  <form [formGroup]="recordForm" (ngSubmit)="submitRecord()" class="entity-form">
+    <div class="field">
+      <label for="amountPaid">Montant encaissé ($)</label>
+      <p-inputnumber inputId="amountPaid" formControlName="amountPaid" mode="currency" currency="CAD" locale="fr-CA" styleClass="w-full" />
+    </div>
+    <div class="dialog-actions">
+      <p-button label="Annuler" severity="secondary" [text]="true" (onClick)="recordDialogVisible.set(false)" type="button" />
+      <p-button label="Enregistrer" icon="pi pi-check" type="submit" [loading]="recordSubmitting()" />
+    </div>
+  </form>
+</p-dialog>

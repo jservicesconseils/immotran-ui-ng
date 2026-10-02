@@ -1,0 +1,93 @@
+<div class="page-header">
+  <div>
+    <h1>Règles juridictionnelles</h1>
+    <p>Catalogue versionné des règles par province/territoire (préavis, hausse de loyer, délais) — donnée de référence partagée.</p>
+  </div>
+  <p-button label="Nouvelle règle" icon="pi pi-plus" (onClick)="openDialog()" />
+</div>
+
+<div class="surface-card">
+  <div class="rule-filter">
+    <label for="provinceFilter">Province</label>
+    <p-select
+      inputId="provinceFilter"
+      [options]="provinceOptions"
+      optionLabel="label"
+      optionValue="value"
+      [ngModel]="selectedProvince()"
+      (ngModelChange)="onProvinceChange($event)"
+      styleClass="w-16rem"
+    />
+  </div>
+
+  <p-table [value]="rules()" [loading]="loading()" dataKey="id" [rowHover]="true" responsiveLayout="scroll">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Type de règle</th>
+        <th>Description</th>
+        <th>Date d'effet</th>
+        <th>Version</th>
+        <th>Source</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-rule>
+      <tr>
+        <td>
+          <div class="entity-name">
+            <span class="icon-box icon-box-sm icon-box-danger"><i class="pi pi-shield"></i></span>
+            {{ rule.ruleType }}
+          </div>
+        </td>
+        <td class="rule-description">{{ rule.description }}</td>
+        <td>{{ rule.effectiveDate | date: 'd MMM yyyy' }}</td>
+        <td>v{{ rule.version }}</td>
+        <td><a [href]="rule.source" target="_blank" rel="noopener">Référence <i class="pi pi-external-link"></i></a></td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="5" class="empty-state">
+          <i class="pi pi-shield"></i>
+          <p>Aucune règle enregistrée pour cette province.</p>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<p-dialog header="Nouvelle règle juridictionnelle" [modal]="true" [(visible)]="dialogVisible" [style]="{ width: '34rem' }">
+  <form [formGroup]="form" (ngSubmit)="submit()" class="entity-form">
+    <div class="field-row">
+      <div class="field">
+        <label for="province">Province</label>
+        <p-select inputId="province" formControlName="province" [options]="provinceOptions" optionLabel="label" optionValue="value" placeholder="Province" styleClass="w-full" />
+      </div>
+      <div class="field">
+        <label for="version">Version</label>
+        <p-inputNumber inputId="version" formControlName="version" [min]="1" styleClass="w-full" />
+      </div>
+    </div>
+    <div class="field">
+      <label for="ruleType">Type de règle</label>
+      <input pInputText id="ruleType" formControlName="ruleType" class="w-full" placeholder="ex. PREAVIS_RESILIATION" />
+    </div>
+    <div class="field">
+      <label for="description">Description</label>
+      <textarea pTextarea id="description" formControlName="description" class="w-full" rows="3" placeholder="Préavis minimal de 3 mois pour un bail à durée indéterminée"></textarea>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label for="effectiveDate">Date d'effet</label>
+        <p-datepicker inputId="effectiveDate" formControlName="effectiveDate" dateFormat="yy-mm-dd" styleClass="w-full" />
+      </div>
+      <div class="field">
+        <label for="source">Source</label>
+        <input pInputText id="source" formControlName="source" class="w-full" placeholder="https://..." />
+      </div>
+    </div>
+    <div class="dialog-actions">
+      <p-button label="Annuler" severity="secondary" [text]="true" (onClick)="dialogVisible.set(false)" type="button" />
+      <p-button label="Créer" icon="pi pi-check" type="submit" [loading]="submitting()" />
+    </div>
+  </form>
+</p-dialog>

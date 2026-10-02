@@ -1,0 +1,66 @@
+<div class="page-header">
+  <div>
+    <h1>Propriétaires</h1>
+    <p>Particuliers ou sociétés détenant une ou plusieurs propriétés de votre portefeuille.</p>
+  </div>
+  <p-button label="Nouveau propriétaire" icon="pi pi-plus" (onClick)="openDialog()" />
+</div>
+
+<div class="surface-card">
+  <p-table [value]="owners()" [loading]="loading()" dataKey="id" [rowHover]="true" responsiveLayout="scroll">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Nom</th>
+        <th>Type</th>
+        <th>Courriel</th>
+        <th>Téléphone</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-owner>
+      <tr>
+        <td>
+          <div class="entity-name">
+            <span class="icon-box icon-box-sm icon-box-warning"><i class="pi pi-id-card"></i></span>
+            {{ owner.name }}
+          </div>
+        </td>
+        <td><p-tag severity="info" [value]="typeLabels[owner.type]" /></td>
+        <td>{{ owner.email || '—' }}</td>
+        <td>{{ owner.phone || '—' }}</td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="4" class="empty-state">
+          <i class="pi pi-id-card"></i>
+          <p>Aucun propriétaire pour le moment.</p>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<p-dialog header="Nouveau propriétaire" [modal]="true" [(visible)]="dialogVisible" [style]="{ width: '30rem' }">
+  <form [formGroup]="form" (ngSubmit)="submit()" class="entity-form">
+    <div class="field">
+      <label for="type">Type</label>
+      <p-select inputId="type" formControlName="type" [options]="ownerTypeOptions" optionLabel="label" optionValue="value" placeholder="Particulier ou société" styleClass="w-full" />
+    </div>
+    <div class="field">
+      <label for="name">Nom</label>
+      <input pInputText id="name" formControlName="name" class="w-full" placeholder="ex. Jean Tremblay ou ABC Immobilier inc." />
+    </div>
+    <div class="field">
+      <label for="email">Courriel</label>
+      <input pInputText id="email" formControlName="email" class="w-full" placeholder="jean@example.com" />
+    </div>
+    <div class="field">
+      <label for="phone">Téléphone</label>
+      <input pInputText id="phone" formControlName="phone" class="w-full" placeholder="514-555-0100" />
+    </div>
+    <div class="dialog-actions">
+      <p-button label="Annuler" severity="secondary" [text]="true" (onClick)="dialogVisible.set(false)" type="button" />
+      <p-button label="Créer" icon="pi pi-check" type="submit" [loading]="submitting()" />
+    </div>
+  </form>
+</p-dialog>

@@ -1,0 +1,129 @@
+@import "primeicons/primeicons.css";
+
+:root {
+  --app-font: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  --app-sidebar-width: 260px;
+  --app-topbar-height: 64px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  font-family: var(--app-font);
+  background: var(--p-surface-50);
+  color: var(--p-surface-900);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Icone dans un encadre colore : motif repete sur les cartes KPI, la
+   barre laterale et les en-tetes de section. "Icones bien definies en
+   bordure" demande par le design : fond teinte + bordure + coins
+   arrondis, jamais une icone nue. */
+.icon-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid transparent;
+  flex-shrink: 0;
+
+  .pi {
+    font-size: 1.25rem;
+  }
+
+  &.icon-box-primary {
+    background: color-mix(in srgb, var(--p-primary-500) 12%, white);
+    border-color: color-mix(in srgb, var(--p-primary-500) 30%, white);
+    color: var(--p-primary-600);
+  }
+
+  &.icon-box-success {
+    background: color-mix(in srgb, #10b981 12%, white);
+    border-color: color-mix(in srgb, #10b981 30%, white);
+    color: #059669;
+  }
+
+  &.icon-box-danger {
+    background: color-mix(in srgb, #f43f5e 12%, white);
+    border-color: color-mix(in srgb, #f43f5e 30%, white);
+    color: #e11d48;
+  }
+
+  &.icon-box-warning {
+    background: color-mix(in srgb, #f59e0b 12%, white);
+    border-color: color-mix(in srgb, #f59e0b 30%, white);
+    color: #d97706;
+  }
+
+  &.icon-box-neutral {
+    background: var(--p-surface-100);
+    border-color: var(--p-surface-200);
+    color: var(--p-surface-600);
+  }
+
+  &.icon-box-lg {
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 1rem;
+
+    .pi {
+      font-size: 1.5rem;
+    }
+  }
+
+  &.icon-box-sm {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.5rem;
+
+    .pi {
+      font-size: 0.95rem;
+    }
+  }
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--p-surface-900);
+    margin: 0 0 0.25rem 0;
+  }
+
+  p {
+    margin: 0;
+    color: var(--p-surface-500);
+    font-size: 0.925rem;
+  }
+}
+
+.surface-card {
+  background: var(--p-surface-0);
+  border: 1px solid var(--p-surface-200);
+  border-radius: 1rem;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--p-surface-300);
+  border-radius: 4px;
+}
