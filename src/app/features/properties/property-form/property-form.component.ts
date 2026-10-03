@@ -3,11 +3,12 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
+import { DialogModule } from 'primeng/dialog';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
-import { MessageService } from 'primeng/api';
+import { MessageService, PrimeTemplate } from 'primeng/api';
 
 import { AuthService } from '../../../core/auth/auth.service';
 import { CANADIAN_PROVINCES } from '../../../core/constants/provinces';
@@ -34,7 +35,17 @@ const STEP_TITLES = ['Informations générales', 'Caractéristiques', 'Propriét
 @Component({
   selector: 'app-property-form',
   standalone: true,
-  imports: [ReactiveFormsModule, ButtonModule, CheckboxModule, InputNumberModule, InputTextModule, SelectModule, TextareaModule],
+  imports: [
+    ReactiveFormsModule,
+    ButtonModule,
+    CheckboxModule,
+    DialogModule,
+    InputNumberModule,
+    InputTextModule,
+    SelectModule,
+    TextareaModule,
+    PrimeTemplate,
+  ],
   templateUrl: './property-form.component.html',
   styleUrl: './property-form.component.scss',
 })

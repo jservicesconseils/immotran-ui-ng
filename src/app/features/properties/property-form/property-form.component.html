@@ -1,6 +1,16 @@
-@if (!loading()) {
-  <div class="page-header">
-    <div>
+<p-dialog
+  [visible]="true"
+  [modal]="true"
+  [closable]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [dismissableMask]="false"
+  styleClass="property-form-dialog"
+  [style]="{ width: '52rem' }"
+  (onHide)="cancel()"
+>
+  <ng-template pTemplate="header">
+    <div class="dialog-header-content">
       <h1>{{ mode() === 'edit' ? 'Modifier la propriété' : 'Nouvelle propriété' }}</h1>
       <p>
         @if (mode() === 'edit') {
@@ -10,9 +20,9 @@
         }
       </p>
     </div>
-  </div>
+  </ng-template>
 
-  <div class="surface-card form-card">
+  @if (!loading()) {
     <div class="stepper">
       @for (title of stepTitles; track title; let i = $index) {
         <div class="stepper-item" [class.active]="i + 1 <= currentStep()" (click)="goToStep(i + 1)">
@@ -166,5 +176,5 @@
         }
       </div>
     </form>
-  </div>
-}
+  }
+</p-dialog>
