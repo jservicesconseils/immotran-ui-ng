@@ -1,0 +1,17 @@
+<div class="tenant-shell">
+  <aside class="tenant-sidebar">
+    <div class="tenant-sidebar-title">Mon espace</div>
+    <nav class="tenant-nav">
+      @for (item of navItems; track item.route) {
+        <a class="tenant-nav-item" [routerLink]="item.route" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">
+          <i class="pi" [class]="item.icon"></i>
+          <span>{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+  </aside>
+
+  <main class="tenant-content">
+    <router-outlet />
+  </main>
+</div>

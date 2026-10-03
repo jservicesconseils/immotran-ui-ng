@@ -1,58 +1,71 @@
 @if (property(); as property) {
-  <div class="page-header">
-    <div class="property-header">
-      <p-button icon="pi pi-arrow-left" [text]="true" [rounded]="true" severity="secondary" (onClick)="goBack()" />
-      <span class="icon-box icon-box-lg icon-box-primary"><i class="pi pi-building"></i></span>
-      <div>
-        <h1>{{ property.street }}</h1>
-        <p>{{ property.city }}, {{ property.province }} {{ property.postalCode }} · {{ typeLabels[property.type] }}</p>
-      </div>
-    </div>
-    <p-tag [severity]="statusSeverity[property.status]" [value]="statusLabels[property.status]" styleClass="status-tag" />
+  <div class="detail-top">
+    <p-button icon="pi pi-arrow-left" [text]="true" [rounded]="true" severity="secondary" (onClick)="goBack()" />
+    <span class="detail-eyebrow">Détails d'un immeuble</span>
   </div>
 
-  @if (property.cadastreNumber || property.taxId || property.buildingStatus || property.yearBuilt || property.floorCount || property.totalSurfaceArea || property.estimatedValue || property.description) {
-    <div class="surface-card info-panel">
-      <div class="info-grid">
-        @if (property.buildingStatus) {
-          <div class="info-item"><span class="info-label">État du bâtiment</span><span class="info-value">{{ buildingStatusLabels[property.buildingStatus] }}</span></div>
-        }
-        @if (property.yearBuilt) {
-          <div class="info-item"><span class="info-label">Année de construction</span><span class="info-value">{{ property.yearBuilt }}</span></div>
-        }
-        @if (property.floorCount) {
-          <div class="info-item"><span class="info-label">Nombre d'étages</span><span class="info-value">{{ property.floorCount }}</span></div>
-        }
-        @if (property.totalSurfaceArea) {
-          <div class="info-item"><span class="info-label">Superficie totale</span><span class="info-value">{{ property.totalSurfaceArea }} m²</span></div>
-        }
-        @if (property.estimatedValue) {
-          <div class="info-item"><span class="info-label">Valeur estimée</span><span class="info-value">{{ property.estimatedValue | currency: 'CAD' : 'symbol-narrow' : '1.0-0' }}</span></div>
-        }
-        @if (property.cadastreNumber) {
-          <div class="info-item"><span class="info-label">Numéro de cadastre</span><span class="info-value">{{ property.cadastreNumber }}</span></div>
-        }
-        @if (property.taxId) {
-          <div class="info-item"><span class="info-label">Numéro fiscal</span><span class="info-value">{{ property.taxId }}</span></div>
-        }
-      </div>
-      @if (property.description) {
-        <p class="info-description">{{ property.description }}</p>
-      }
+  <div class="building-header surface-card">
+    <div class="building-photo"><i class="pi pi-building"></i></div>
+    <div class="building-header-info">
+      <h1>{{ property.street }}</h1>
+      <p>{{ property.city }}, {{ property.province }} {{ property.postalCode }}</p>
     </div>
-  }
+    <p-tag [severity]="statusSeverity[property.status]" [value]="statusLabels[property.status]" />
+    <p-button label="Modifier" severity="secondary" [outlined]="true" (onClick)="editProperty()" />
+  </div>
 
   <div class="surface-card">
-    <p-tabs value="units">
+    <p-tabs value="informations">
       <p-tablist>
-        <p-tab value="units"><i class="pi pi-home"></i> Unités</p-tab>
+        <p-tab value="informations"><i class="pi pi-info-circle"></i> Informations</p-tab>
+        <p-tab value="units"><i class="pi pi-th-large"></i> Appartements ({{ units().length }})</p-tab>
+        <p-tab value="documents"><i class="pi pi-file"></i> Documents</p-tab>
+        <p-tab value="photos"><i class="pi pi-images"></i> Photos</p-tab>
         <p-tab value="owners"><i class="pi pi-id-card"></i> Propriétaires</p-tab>
         <p-tab value="finance"><i class="pi pi-wallet"></i> Finances</p-tab>
         <p-tab value="maintenance"><i class="pi pi-wrench"></i> Maintenance</p-tab>
-        <p-tab value="documents"><i class="pi pi-file"></i> Documents</p-tab>
       </p-tablist>
 
       <p-tabpanels>
+        <!-- INFORMATIONS -->
+        <p-tabpanel value="informations">
+          <div class="informations-layout">
+            <div class="informations-list">
+              <h3>Informations générales</h3>
+              <dl>
+                @if (property.yearBuilt) {
+                  <div><dt>Année de construction</dt><dd>{{ property.yearBuilt }}</dd></div>
+                }
+                @if (property.floorCount) {
+                  <div><dt>Nombre d'étages</dt><dd>{{ property.floorCount }}</dd></div>
+                }
+                <div><dt>Nombre total d'appartements</dt><dd>{{ units().length }}</dd></div>
+                @if (property.totalSurfaceArea) {
+                  <div><dt>Surface totale</dt><dd>{{ property.totalSurfaceArea }} m²</dd></div>
+                }
+                @if (property.cadastreNumber) {
+                  <div><dt>Numéro de cadastre</dt><dd>{{ property.cadastreNumber }}</dd></div>
+                }
+                @if (property.taxId) {
+                  <div><dt>Numéro fiscal</dt><dd>{{ property.taxId }}</dd></div>
+                }
+                @if (property.estimatedValue) {
+                  <div><dt>Valeur estimée</dt><dd>{{ property.estimatedValue | currency: 'CAD' : 'symbol-narrow' : '1.0-0' }}</dd></div>
+                }
+                @if (property.buildingStatus) {
+                  <div><dt>Statut</dt><dd><p-tag severity="success" [value]="buildingStatusLabels[property.buildingStatus]" /></dd></div>
+                }
+              </dl>
+              @if (property.description) {
+                <p class="informations-description">{{ property.description }}</p>
+              }
+            </div>
+            <div class="informations-map">
+              <i class="pi pi-map-marker"></i>
+            </div>
+          </div>
+        </p-tabpanel>
+
         <!-- UNITS -->
         <p-tabpanel value="units">
           <div class="tab-actions">
@@ -221,6 +234,14 @@
             </ng-template>
           </p-table>
         </p-tabpanel>
+
+        <!-- PHOTOS -->
+        <p-tabpanel value="photos">
+          <div class="empty-state">
+            <i class="pi pi-images"></i>
+            <p>Aucune photo pour le moment.</p>
+          </div>
+        </p-tabpanel>
       </p-tabpanels>
     </p-tabs>
   </div>
@@ -257,9 +278,15 @@
         <p-inputnumber inputId="bathrooms" formControlName="bathrooms" styleClass="w-full" />
       </div>
     </div>
-    <div class="field">
-      <label for="unitType">Type de logement</label>
-      <p-select inputId="unitType" formControlName="type" [options]="unitTypeOptions" optionLabel="label" optionValue="value" placeholder="Sélectionner" styleClass="w-full" [showClear]="true" />
+    <div class="field-row">
+      <div class="field">
+        <label for="unitType">Type de logement</label>
+        <p-select inputId="unitType" formControlName="type" [options]="unitTypeOptions" optionLabel="label" optionValue="value" placeholder="Sélectionner" styleClass="w-full" [showClear]="true" />
+      </div>
+      <div class="field">
+        <label for="listedRent">Loyer affiché ($/mois)</label>
+        <p-inputnumber inputId="listedRent" formControlName="listedRent" mode="currency" currency="CAD" locale="fr-CA" styleClass="w-full" />
+      </div>
     </div>
     <div class="field">
       <label for="unitDescription">Description (optionnel)</label>

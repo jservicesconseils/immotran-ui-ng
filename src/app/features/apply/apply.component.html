@@ -1,93 +1,246 @@
 <div class="apply-page">
-  <div class="apply-card surface-card">
-    <div class="apply-header">
-      <span class="icon-box icon-box-lg icon-box-primary"><i class="pi pi-file-edit"></i></span>
-      <div>
-        <h1>Candidature de location</h1>
-        <p>Remplissez ce formulaire pour soumettre votre candidature. Aucun compte requis.</p>
-      </div>
-    </div>
+  <div class="apply-card">
+    @if (!submitted()) {
+      <h1>Dépôt de dossier de location</h1>
+      <p class="apply-subtitle">Remplissez les informations ci-dessous pour soumettre votre dossier</p>
 
-    @if (submitted()) {
-      <p-message severity="success" styleClass="w-full">
-        Votre candidature a été transmise avec succès. L'équipe de gestion communiquera avec vous après l'étude de votre dossier.
-      </p-message>
-    } @else {
+      <div class="stepper">
+        <div class="stepper-item" [class.active]="1 <= currentStep()">
+          <div class="stepper-circle">1</div>
+          <div class="stepper-label" [class.current]="1 === currentStep()">Informations<br />personnelles</div>
+        </div>
+        <div class="stepper-line" [class.active]="1 < currentStep()"></div>
+        <div class="stepper-item" [class.active]="2 <= currentStep()">
+          <div class="stepper-circle">2</div>
+          <div class="stepper-label" [class.current]="2 === currentStep()">Pièces à fournir</div>
+        </div>
+        <div class="stepper-line" [class.active]="2 < currentStep()"></div>
+        <div class="stepper-item" [class.active]="3 <= currentStep()">
+          <div class="stepper-circle">3</div>
+          <div class="stepper-label" [class.current]="3 === currentStep()">Location souhaitée</div>
+        </div>
+        <div class="stepper-line" [class.active]="3 < currentStep()"></div>
+        <div class="stepper-item" [class.active]="4 <= currentStep()">
+          <div class="stepper-circle">4</div>
+          <div class="stepper-label" [class.current]="4 === currentStep()">Validation</div>
+        </div>
+      </div>
+
       @if (submissionFailed()) {
-        <p-message severity="error" styleClass="w-full">
-          L'envoi de votre candidature a échoué. Vérifiez vos informations et réessayez.
-        </p-message>
+        <p class="apply-error">L'envoi de votre candidature a échoué. Vérifiez vos informations et réessayez.</p>
       }
 
-      <form [formGroup]="form" (ngSubmit)="submit()" class="apply-form">
-        <p class="form-section-title">Vos coordonnées</p>
-        <div class="field-row">
-          <div class="field">
-            <label for="firstName">Prénom</label>
-            <input pInputText id="firstName" formControlName="firstName" class="w-full" />
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <!-- ETAPE 1 : Informations personnelles -->
+        @if (currentStep() === 1) {
+          <h2>Informations personnelles</h2>
+          <div class="field-row cols-2">
+            <div class="field">
+              <label for="fullName">Nom complet *</label>
+              <input pInputText id="fullName" formControlName="fullName" class="w-full" placeholder="Jean Dupont" />
+            </div>
+            <div class="field">
+              <label for="dateOfBirth">Date de naissance *</label>
+              <p-datepicker inputId="dateOfBirth" formControlName="dateOfBirth" dateFormat="yy-mm-dd" styleClass="w-full" />
+            </div>
           </div>
           <div class="field">
-            <label for="lastName">Nom</label>
-            <input pInputText id="lastName" formControlName="lastName" class="w-full" />
+            <label for="currentAddress">Adresse actuelle *</label>
+            <input pInputText id="currentAddress" formControlName="currentAddress" class="w-full" placeholder="123 rue Principale, Montréal" />
           </div>
-        </div>
-        <div class="field-row">
-          <div class="field">
-            <label for="email">Courriel</label>
-            <input pInputText id="email" type="email" formControlName="email" class="w-full" />
+          <div class="field-row cols-3">
+            <div class="field">
+              <label for="phone">Téléphone *</label>
+              <input pInputText id="phone" formControlName="phone" class="w-full" placeholder="(514) 555-0123" />
+            </div>
+            <div class="field">
+              <label for="email">Courriel *</label>
+              <input pInputText id="email" type="email" formControlName="email" class="w-full" placeholder="jean.dupont@courriel.com" />
+            </div>
+            <div class="field">
+              <label for="socialInsuranceNumber">Numéro d'assurance sociale (NAS)</label>
+              <input pInputText id="socialInsuranceNumber" formControlName="socialInsuranceNumber" class="w-full" placeholder="123 456 789" />
+              <small class="field-hint">Facultatif, selon les lois sur la protection de la vie privée</small>
+            </div>
           </div>
-          <div class="field">
-            <label for="phone">Téléphone</label>
-            <input pInputText id="phone" formControlName="phone" class="w-full" placeholder="514-555-0100" />
+          <div class="field-row cols-3">
+            <div class="field">
+              <label for="profession">Profession *</label>
+              <input pInputText id="profession" formControlName="profession" class="w-full" placeholder="Ingénieur logiciel" />
+            </div>
+            <div class="field">
+              <label for="employerName">Employeur actuel *</label>
+              <input pInputText id="employerName" formControlName="employerName" class="w-full" placeholder="ABC Technologies" />
+            </div>
+            <div class="field">
+              <label for="monthlyIncome">Revenu mensuel *</label>
+              <p-inputnumber inputId="monthlyIncome" formControlName="monthlyIncome" mode="currency" currency="CAD" locale="fr-CA" styleClass="w-full" />
+            </div>
           </div>
-        </div>
+        }
 
-        <p class="form-section-title">Situation financière (optionnel)</p>
-        <div class="field-row">
-          <div class="field">
-            <label for="employerName">Employeur</label>
-            <input pInputText id="employerName" formControlName="employerName" class="w-full" />
-          </div>
-          <div class="field">
-            <label for="monthlyIncome">Revenu mensuel ($)</label>
-            <p-inputnumber inputId="monthlyIncome" formControlName="monthlyIncome" mode="currency" currency="CAD" locale="fr-CA" styleClass="w-full" />
-          </div>
-        </div>
+        <!-- ETAPE 2 : Pieces a fournir -->
+        @if (currentStep() === 2) {
+          <h2>Téléversez vos documents</h2>
+          <p class="apply-subtitle">Formats acceptés: PDF, JPG, PNG (max 10 Mo par fichier)</p>
 
-        <p class="form-section-title">Références</p>
-        <div formArrayName="references" class="references-list">
-          @for (reference of references.controls; track reference; let i = $index) {
-            <div [formGroupName]="i" class="reference-group">
-              <div class="field-row">
-                <div class="field">
-                  <label [for]="'refName' + i">Nom</label>
-                  <input pInputText [id]="'refName' + i" formControlName="name" class="w-full" />
+          <div class="dropzone">
+            <i class="pi pi-cloud-upload dropzone-icon"></i>
+            <div class="dropzone-text">
+              Glissez vos fichiers ici<br />
+              <span class="dropzone-link">ou cliquez pour sélectionner</span>
+            </div>
+            <div class="dropzone-hint">PDF, JPG, PNG (max 10 Mo)</div>
+          </div>
+
+          <div class="doc-list">
+            @for (slot of documentSlots; track slot.key) {
+              <div class="doc-row">
+                <span class="icon-box icon-box-sm" [class]="slot.colorClass"><i class="pi" [class]="slot.icon"></i></span>
+                <div class="doc-info">
+                  <div class="doc-title">{{ slot.title }}@if (slot.required) {
+                      <span class="doc-required"> *</span>
+                    }</div>
+                  <div class="doc-description">{{ slot.description }}</div>
                 </div>
-                <div class="field">
-                  <label [for]="'refPhone' + i">Téléphone (optionnel)</label>
-                  <input pInputText [id]="'refPhone' + i" formControlName="phone" class="w-full" />
-                </div>
+                <button type="button" class="doc-upload-button" [class.uploaded]="uploadedDocs().has(slot.key)" (click)="toggleUpload(slot.key)">
+                  @if (uploadedDocs().has(slot.key)) {
+                    <i class="pi pi-check"></i> Téléversé
+                  } @else {
+                    Téléverser
+                  }
+                </button>
               </div>
-              <div class="field-row">
-                <div class="field">
-                  <label [for]="'refEmail' + i">Courriel (optionnel)</label>
-                  <input pInputText [id]="'refEmail' + i" formControlName="email" class="w-full" />
+            }
+          </div>
+        }
+
+        <!-- ETAPE 3 : Location souhaitee -->
+        @if (currentStep() === 3) {
+          <h2>Informations sur la location souhaitée</h2>
+
+          @if (listing(); as listing) {
+            <div class="unit-summary-card">
+              <div class="unit-summary-photo"><i class="pi pi-home"></i></div>
+              <div class="unit-summary-info">
+                <div class="unit-summary-title">Appartement {{ listing.unitLabel }}</div>
+                <div class="unit-summary-badges">
+                  @if (roomCount()) {
+                    <span class="unit-badge">{{ roomCount() }}</span>
+                  }
+                  @if (listing.areaSquareMeters) {
+                    <span class="unit-badge">{{ listing.areaSquareMeters }} m²</span>
+                  }
+                  @if (listing.bedrooms != null) {
+                    <span class="unit-badge">{{ listing.bedrooms }} chambres</span>
+                  }
+                  @if (listing.bathrooms != null) {
+                    <span class="unit-badge">{{ listing.bathrooms }} salle de bain</span>
+                  }
                 </div>
-                @if (references.length > 1) {
-                  <div class="field reference-remove">
-                    <p-button label="Retirer" severity="danger" [text]="true" size="small" (onClick)="removeReference(i)" type="button" />
-                  </div>
+                <div class="unit-summary-address"><i class="pi pi-map-marker"></i> {{ listing.propertyStreet }}, {{ listing.propertyCity }}, {{ listing.propertyProvince }}</div>
+                @if (listing.listedRent) {
+                  <div class="unit-summary-price">{{ listing.listedRent | currency: 'CAD' : 'symbol-narrow' : '1.0-0' }} / mois</div>
                 }
               </div>
             </div>
           }
-        </div>
-        <p-button label="Ajouter une référence" icon="pi pi-plus" severity="secondary" [outlined]="true" size="small" (onClick)="addReference()" type="button" />
 
-        <div class="dialog-actions">
-          <p-button label="Soumettre ma candidature" icon="pi pi-send" type="submit" [loading]="submitting()" />
-        </div>
+          <div class="field">
+            <label for="unitSelect">Appartement visé *</label>
+            <p-select inputId="unitSelect" [options]="[{ label: 'Appartement ' + (listing()?.unitLabel ?? ''), value: unitId }]" optionLabel="label" optionValue="value" [ngModel]="unitId" [ngModelOptions]="{ standalone: true }" [disabled]="true" styleClass="w-full" />
+          </div>
+          <div class="field">
+            <label for="desiredMoveInDate">Date d'entrée souhaitée *</label>
+            <p-datepicker inputId="desiredMoveInDate" formControlName="desiredMoveInDate" dateFormat="yy-mm-dd" styleClass="w-full" />
+          </div>
+          <div class="field">
+            <label for="leaseDuration">Durée du bail souhaitée *</label>
+            <p-select inputId="leaseDuration" formControlName="leaseDuration" [options]="leaseDurationOptions" optionLabel="label" optionValue="value" styleClass="w-full" />
+          </div>
+          <div class="field">
+            <label for="comments">Commentaires (optionnel)</label>
+            <textarea pTextarea id="comments" formControlName="comments" class="w-full" rows="3" placeholder="Informations supplémentaires..."></textarea>
+          </div>
+        }
+
+        <!-- ETAPE 4 : Validation -->
+        @if (currentStep() === 4) {
+          <h2>Vérifiez et soumettez votre dossier</h2>
+
+          <div class="summary-card">
+            <span class="icon-box icon-box-sm icon-box-primary"><i class="pi pi-user"></i></span>
+            <div class="summary-info">
+              <div class="summary-title">Informations personnelles</div>
+              <div class="summary-detail">{{ form.controls.fullName.value }}, {{ form.controls.dateOfBirth.value | date: 'yyyy-MM-dd' }}</div>
+              <div class="summary-detail">{{ form.controls.currentAddress.value }}</div>
+            </div>
+            <a href="#" class="apply-link" (click)="$event.preventDefault(); goToStep(1)">Modifier</a>
+          </div>
+
+          <div class="summary-card">
+            <span class="icon-box icon-box-sm icon-box-primary"><i class="pi pi-file"></i></span>
+            <div class="summary-info">
+              <div class="summary-title">Pièces à fournir</div>
+              <div class="summary-detail">{{ uploadedDocs().size }} documents téléversés</div>
+            </div>
+            <a href="#" class="apply-link" (click)="$event.preventDefault(); goToStep(2)">Modifier</a>
+          </div>
+
+          <div class="summary-card">
+            <span class="icon-box icon-box-sm icon-box-success"><i class="pi pi-home"></i></span>
+            <div class="summary-info">
+              <div class="summary-title">Location souhaitée</div>
+              <div class="summary-detail">
+                Appartement {{ listing()?.unitLabel }} - Entrée: {{ form.controls.desiredMoveInDate.value | date: 'yyyy-MM-dd' }}
+              </div>
+            </div>
+            <a href="#" class="apply-link" (click)="$event.preventDefault(); goToStep(3)">Modifier</a>
+          </div>
+
+          <div class="field-checkbox">
+            <p-checkbox formControlName="confirmAccurate" [binary]="true" inputId="confirmAccurate" />
+            <label for="confirmAccurate">Je confirme que toutes les informations fournies sont exactes et complètes.</label>
+          </div>
+          <div class="field-checkbox">
+            <p-checkbox formControlName="acceptDataUse" [binary]="true" inputId="acceptDataUse" />
+            <label for="acceptDataUse">J'accepte que mes informations soient utilisées pour l'étude de mon dossier de location.</label>
+          </div>
+
+          <p-button label="Soumettre mon dossier" type="submit" styleClass="w-full apply-submit-button" [loading]="submitting()" />
+        }
+
+        @if (currentStep() < 4) {
+          <div class="apply-actions">
+            @if (currentStep() > 1) {
+              <p-button label="← Précédent" severity="secondary" [outlined]="true" (onClick)="previousStep()" type="button" />
+            } @else {
+              <span></span>
+            }
+            <p-button label="Suivant →" (onClick)="nextStep()" type="button" [disabled]="currentStep() === 2 && !requiredDocsUploaded()" />
+          </div>
+        }
       </form>
+    } @else {
+      <!-- ETAPE 6 : Confirmation -->
+      <div class="success-view">
+        <div class="success-icon"><i class="pi pi-check"></i></div>
+        <h1>Dossier soumis avec succès !</h1>
+        <p class="apply-subtitle">Votre dossier de location a été reçu et est en cours d'étude.</p>
+
+        <div class="tracking-box">
+          <div class="tracking-label">Numéro de suivi</div>
+          <div class="tracking-value">
+            {{ trackingNumber() }}
+            <button type="button" class="tracking-copy" (click)="copyTrackingNumber()"><i class="pi pi-copy"></i></button>
+          </div>
+        </div>
+
+        <p class="success-note">Vous recevrez une confirmation par courriel avec les prochaines étapes.</p>
+
+        <p-button label="Retour à l'accueil" severity="secondary" [outlined]="true" styleClass="w-full" (onClick)="goHome()" />
+        <a href="#" class="apply-link success-status-link" (click)="$event.preventDefault(); goToStatus()">Consulter le statut de mon dossier</a>
+      </div>
     }
   </div>
 </div>

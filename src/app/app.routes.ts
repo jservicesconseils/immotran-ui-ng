@@ -13,6 +13,55 @@ export const routes: Routes = [
     loadComponent: () => import('./features/apply/apply.component').then((m) => m.ApplyComponent),
   },
   {
+    // Espace locataire : public lui aussi, accessible par numero de suivi
+    // seul (voir ApplicationPublicStatusController cote backend) --
+    // aucun compte/mot de passe, comme le suivi d'une commande.
+    path: 'locataire',
+    loadComponent: () => import('./features/tenant-portal/shell/tenant-shell.component').then((m) => m.TenantShellComponent),
+    children: [
+      { path: '', pathMatch: 'full', redirectTo: 'dossiers' },
+      {
+        path: 'dossiers',
+        loadComponent: () =>
+          import('./features/tenant-portal/placeholder/tenant-placeholder.component').then((m) => m.TenantPlaceholderComponent),
+        data: { title: 'Mes dossiers' },
+      },
+      {
+        path: 'dossiers/:applicationId',
+        loadComponent: () => import('./features/tenant-portal/dossier/tenant-dossier.component').then((m) => m.TenantDossierComponent),
+      },
+      {
+        path: 'dossiers/:applicationId/decision',
+        loadComponent: () =>
+          import('./features/tenant-portal/decision/tenant-decision.component').then((m) => m.TenantDecisionComponent),
+      },
+      {
+        path: 'tableau-de-bord',
+        loadComponent: () =>
+          import('./features/tenant-portal/placeholder/tenant-placeholder.component').then((m) => m.TenantPlaceholderComponent),
+        data: { title: 'Tableau de bord' },
+      },
+      {
+        path: 'documents',
+        loadComponent: () =>
+          import('./features/tenant-portal/placeholder/tenant-placeholder.component').then((m) => m.TenantPlaceholderComponent),
+        data: { title: 'Mes documents' },
+      },
+      {
+        path: 'paiements',
+        loadComponent: () =>
+          import('./features/tenant-portal/placeholder/tenant-placeholder.component').then((m) => m.TenantPlaceholderComponent),
+        data: { title: 'Mes paiements' },
+      },
+      {
+        path: 'profil',
+        loadComponent: () =>
+          import('./features/tenant-portal/placeholder/tenant-placeholder.component').then((m) => m.TenantPlaceholderComponent),
+        data: { title: 'Mon profil' },
+      },
+    ],
+  },
+  {
     path: '',
     loadComponent: () => import('./layout/shell/shell.component').then((m) => m.ShellComponent),
     canActivate: [authGuard],
@@ -40,6 +89,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/properties/lease-detail/lease-detail.component').then((m) => m.LeaseDetailComponent),
       },
       {
+        path: 'properties/:propertyId/units/:unitId/applications/:applicationId/review',
+        loadComponent: () =>
+          import('./features/properties/application-review/application-review.component').then((m) => m.ApplicationReviewComponent),
+      },
+      {
         path: 'owners',
         loadComponent: () => import('./features/owners/owner-list.component').then((m) => m.OwnerListComponent),
       },
@@ -51,6 +105,38 @@ export const routes: Routes = [
         path: 'admin/jurisdiction-rules',
         loadComponent: () =>
           import('./features/admin/jurisdiction-rule-list.component').then((m) => m.JurisdictionRuleListComponent),
+      },
+      // Elements du menu gestionnaire issus de la maquette (ecran 09) mais
+      // sans fonctionnalite dediee dans ce MVP -- voir ManagerPlaceholderComponent.
+      {
+        path: 'appartements',
+        loadComponent: () => import('./features/placeholder/manager-placeholder.component').then((m) => m.ManagerPlaceholderComponent),
+        data: { title: 'Appartements' },
+      },
+      {
+        path: 'dossiers-location',
+        loadComponent: () => import('./features/placeholder/manager-placeholder.component').then((m) => m.ManagerPlaceholderComponent),
+        data: { title: 'Dossiers de location' },
+      },
+      {
+        path: 'baux',
+        loadComponent: () => import('./features/placeholder/manager-placeholder.component').then((m) => m.ManagerPlaceholderComponent),
+        data: { title: 'Baux' },
+      },
+      {
+        path: 'paiements',
+        loadComponent: () => import('./features/placeholder/manager-placeholder.component').then((m) => m.ManagerPlaceholderComponent),
+        data: { title: 'Paiements' },
+      },
+      {
+        path: 'rapports',
+        loadComponent: () => import('./features/placeholder/manager-placeholder.component').then((m) => m.ManagerPlaceholderComponent),
+        data: { title: 'Rapports' },
+      },
+      {
+        path: 'parametres',
+        loadComponent: () => import('./features/placeholder/manager-placeholder.component').then((m) => m.ManagerPlaceholderComponent),
+        data: { title: 'Paramètres' },
       },
     ],
   },

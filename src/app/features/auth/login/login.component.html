@@ -1,68 +1,65 @@
 <div class="login-page">
   <div class="login-brand">
+    <div class="login-brand-overlay"></div>
     <div class="login-brand-content">
-      <div class="icon-box icon-box-lg" style="background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3); color: #fff;">
+      <div class="login-brand-icon">
         <i class="pi pi-building"></i>
       </div>
-      <h1>Immotran</h1>
-      <p>La plateforme de gestion immobilière pensée pour le marché canadien — maisons, condos, immeubles multi-unités, un seul portefeuille.</p>
+      <h1>Gestion<br />Immobilière</h1>
+      <p>Une solution complète pour la gestion de vos immeubles, appartements et locataires.</p>
 
       <ul class="login-brand-points">
-        <li><i class="pi pi-check-circle"></i> Propriétés, unités, baux et locataires centralisés</li>
-        <li><i class="pi pi-check-circle"></i> Suivi des loyers, dépenses et rentabilité</li>
-        <li><i class="pi pi-check-circle"></i> Maintenance et documents en un coup d'œil</li>
+        <li><i class="pi pi-check"></i> Gestion des immeubles</li>
+        <li><i class="pi pi-check"></i> Dépôt de dossier en ligne</li>
+        <li><i class="pi pi-check"></i> Suivi des demandes</li>
+        <li><i class="pi pi-check"></i> Signature électronique</li>
+        <li><i class="pi pi-check"></i> Paiements sécurisés</li>
       </ul>
     </div>
   </div>
 
   <div class="login-form-side">
-    <form class="login-form surface-card" [formGroup]="form" (ngSubmit)="submit()">
+    <form class="login-form" [formGroup]="form" (ngSubmit)="submit()">
       <div class="login-form-header">
-        <div class="icon-box icon-box-primary icon-box-lg">
-          <i class="pi pi-sign-in"></i>
+        <div class="login-form-icon">
+          <i class="pi pi-building"></i>
         </div>
         <h2>Connexion</h2>
-        <p>Accédez à votre portefeuille immobilier.</p>
-      </div>
-
-      <p-message severity="info" [text]="'Mode développement local : aucun fournisseur d\'identité (Cognito) n\'est encore déployé — ces champs créent simplement votre session locale.'" styleClass="w-full mb-4" />
-
-      <div class="field">
-        <label for="organizationName">Organisation</label>
-        <input
-          pInputText
-          id="organizationName"
-          formControlName="organizationName"
-          placeholder="ex. ABC Immobilier inc."
-          class="w-full"
-        />
-        @if (form.controls.organizationName.invalid && form.controls.organizationName.touched) {
-          <small class="field-error">Le nom de l'organisation est requis.</small>
-        }
+        <p>Accédez à votre espace.</p>
       </div>
 
       <div class="field">
-        <label for="displayName">Votre nom</label>
-        <input
-          pInputText
-          id="displayName"
-          formControlName="displayName"
-          placeholder="ex. Jean Tremblay"
-          class="w-full"
-        />
-        @if (form.controls.displayName.invalid && form.controls.displayName.touched) {
-          <small class="field-error">Votre nom est requis.</small>
-        }
+        <label for="email">Courriel</label>
+        <input pInputText id="email" formControlName="email" placeholder="votre@courriel.com" class="w-full" />
       </div>
 
-      <p-button
-        type="submit"
-        label="Accéder à mon portefeuille"
-        icon="pi pi-arrow-right"
-        iconPos="right"
-        styleClass="w-full"
-        [loading]="submitting()"
-      />
+      <div class="field">
+        <label for="password">Mot de passe</label>
+        <p-password
+          inputId="password"
+          formControlName="password"
+          placeholder="Votre mot de passe"
+          [feedback]="false"
+          [toggleMask]="true"
+          styleClass="w-full"
+          inputStyleClass="w-full"
+        />
+      </div>
+
+      <div class="login-form-row">
+        <div class="field-checkbox">
+          <p-checkbox formControlName="rememberMe" [binary]="true" inputId="rememberMe" />
+          <label for="rememberMe">Se souvenir de moi</label>
+        </div>
+        <a href="#" class="login-link" (click)="$event.preventDefault()">Mot de passe oublié ?</a>
+      </div>
+
+      <p-button type="submit" label="Se connecter" styleClass="w-full" [loading]="submitting()" />
+
+      <p class="login-signup">
+        Vous n'avez pas de compte ?
+        <a href="#" class="login-link" (click)="$event.preventDefault()">S'inscrire</a>
+      </p>
     </form>
   </div>
 </div>

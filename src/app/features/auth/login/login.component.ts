@@ -2,14 +2,15 @@ import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
+import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
-import { MessageModule } from 'primeng/message';
+import { PasswordModule } from 'primeng/password';
 import { AuthService } from '../../../core/auth/auth.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, ButtonModule, InputTextModule, MessageModule],
+  imports: [ReactiveFormsModule, ButtonModule, CheckboxModule, InputTextModule, PasswordModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
@@ -21,8 +22,9 @@ export class LoginComponent {
   readonly submitting = signal(false);
 
   readonly form = this.fb.nonNullable.group({
-    organizationName: ['', [Validators.required, Validators.maxLength(200)]],
-    displayName: ['', [Validators.required, Validators.maxLength(200)]],
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required]],
+    rememberMe: [true],
   });
 
   async submit(): Promise<void> {
@@ -32,16 +34,28 @@ export class LoginComponent {
     }
 
     this.submitting.set(true);
-    const { organizationName, displayName } = this.form.getRawValue();
+    const { email } = this.form.getRawValue();
 
-    // Mode local (sans Cognito) : l'id d'organisation est derive du nom
-    // pour rester stable d'une session a l'autre, tant qu'aucun vrai
-    // compte Cognito/Organization n'existe. Voir AuthService.
+    // Mode local (sans Cognito) : aucun mot de passe n'est verifie contre
+    // un vrai fournisseur d'identite. L'organisation et le nom affiche
+    // sont derives du courriel pour rester stables d'une session a
+    // l'autre, tant qu'aucun vrai compte n'existe (voir AuthService).
+    const [localPart, domainPart] = email.split('@');
+    const organizationName = this.titleCase((domainPart ?? localPart).split('.')[0]);
+    const displayName = this.titleCase(localPart.replace(/[._-]+/g, ' '));
     const organizationId = await this.deriveOrganizationId(organizationName);
 
     await this.auth.login(organizationId, organizationName, displayName);
     this.submitting.set(false);
     this.router.navigateByUrl('/dashboard');
+  }
+
+  private titleCase(value: string): string {
+    return value
+      .trim()
+      .split(/\s+/)
+      .map((word) => (word ? word.charAt(0).toUpperCase() + word.slice(1) : word))
+      .join(' ');
   }
 
   private async deriveOrganizationId(organizationName: string): Promise<string> {

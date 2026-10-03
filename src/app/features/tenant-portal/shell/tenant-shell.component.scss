@@ -1,0 +1,60 @@
+.tenant-shell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--p-surface-50);
+}
+
+.tenant-sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--p-surface-0);
+  border-right: 1px solid var(--p-surface-200);
+  padding: 1.5rem 1rem;
+}
+
+.tenant-sidebar-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--p-surface-900);
+  padding: 0 0.6rem 1.25rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid var(--p-surface-100);
+}
+
+.tenant-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.tenant-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.6rem 0.65rem;
+  border-radius: 0.6rem;
+  color: var(--p-surface-600);
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+
+  .pi {
+    font-size: 0.95rem;
+  }
+
+  &:hover {
+    background: var(--p-surface-100);
+    color: var(--p-surface-900);
+  }
+
+  &.active {
+    background: color-mix(in srgb, var(--p-primary-500) 10%, white);
+    color: var(--p-primary-700);
+    font-weight: 700;
+  }
+}
+
+.tenant-content {
+  flex: 1;
+  padding: 2rem 2.5rem;
+}

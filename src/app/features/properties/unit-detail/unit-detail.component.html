@@ -1,130 +1,188 @@
-<div class="page-header">
-  <div class="unit-header">
+@if (unit(); as unit) {
+  <div class="detail-top">
     <p-button icon="pi pi-arrow-left" [text]="true" [rounded]="true" severity="secondary" (onClick)="goBack()" />
-    <span class="icon-box icon-box-lg icon-box-success"><i class="pi pi-home"></i></span>
-    <div>
-      <h1>Unité {{ unit()?.label }}</h1>
-      @if (property(); as property) {
-        <p>{{ property.street }}, {{ property.city }} {{ property.province }}</p>
+    <span class="detail-eyebrow">Détails d'un appartement</span>
+  </div>
+
+  <div class="unit-header surface-card">
+    <div class="unit-header-top">
+      <h1>Appartement {{ unit.label }}</h1>
+      <p-tag [severity]="unitStatusSeverity[unit.status]" [value]="unitStatusLabels[unit.status]" />
+      <div class="unit-header-actions">
+        <p-button label="Modifier" severity="secondary" [outlined]="true" />
+        <p-button label="Mettre à jour" />
+      </div>
+    </div>
+    <div class="unit-header-badges">
+      @if (unit.bedrooms != null) {
+        <span class="unit-badge">{{ unit.bedrooms + 1 }} ½</span>
+      }
+      @if (unit.areaSquareMeters) {
+        <span class="unit-badge">{{ unit.areaSquareMeters }} m²</span>
+      }
+      @if (unit.bedrooms != null) {
+        <span class="unit-badge">{{ unit.bedrooms }} chambres</span>
+      }
+      @if (unit.bathrooms != null) {
+        <span class="unit-badge">{{ unit.bathrooms }} salle de bain</span>
       }
     </div>
   </div>
-  @if (unit(); as unit) {
-    <p-tag [severity]="unitStatusSeverity[unit.status]" [value]="unitStatusLabels[unit.status]" />
-  }
-</div>
 
-@if (unit(); as unit) {
-  <div class="unit-info-grid">
-    <div class="surface-card unit-info-card">
-      <span class="unit-info-label">Étage</span>
-      <span class="unit-info-value">{{ unit.floor ?? '—' }}</span>
-    </div>
-    <div class="surface-card unit-info-card">
-      <span class="unit-info-label">Superficie</span>
-      <span class="unit-info-value">{{ unit.areaSquareMeters ? unit.areaSquareMeters + ' m²' : '—' }}</span>
-    </div>
-    <div class="surface-card unit-info-card">
-      <span class="unit-info-label">Chambres</span>
-      <span class="unit-info-value">{{ unit.bedrooms ?? '—' }}</span>
-    </div>
-    <div class="surface-card unit-info-card">
-      <span class="unit-info-label">Salles de bain</span>
-      <span class="unit-info-value">{{ unit.bathrooms ?? '—' }}</span>
-    </div>
-    <div class="surface-card unit-info-card">
-      <span class="unit-info-label">Type</span>
-      <span class="unit-info-value">{{ unit.type ? unitTypeLabels[unit.type] : '—' }}</span>
-    </div>
-  </div>
-  @if (unit.description) {
-    <div class="surface-card unit-description-card">{{ unit.description }}</div>
-  }
-}
-
-<div class="surface-card">
-  <div class="section-header">
-    <h3>Candidatures</h3>
-    <div class="section-header-actions">
-      <p-button label="Lien de candidature" icon="pi pi-link" size="small" severity="secondary" [outlined]="true" (onClick)="copyApplicationLink()" />
-    </div>
+  <div class="unit-gallery">
+    <div class="unit-gallery-photo"><i class="pi pi-image"></i></div>
+    <div class="unit-gallery-photo"><i class="pi pi-image"></i></div>
+    <div class="unit-gallery-photo"><i class="pi pi-image"></i></div>
   </div>
 
-  <p-table [value]="applications()" dataKey="id" [rowHover]="true" responsiveLayout="scroll">
-    <ng-template pTemplate="header">
-      <tr>
-        <th>Candidat</th>
-        <th>Revenu mensuel</th>
-        <th>Score</th>
-        <th>Statut</th>
-        <th style="width: 18rem"></th>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="body" let-application>
-      <tr>
-        <td>
-          <div class="entity-name">{{ application.firstName }} {{ application.lastName }}</div>
-          <div class="entity-subtext">{{ application.email }} · {{ application.phone }}</div>
-        </td>
-        <td>{{ application.monthlyIncome ? (application.monthlyIncome | currency: 'CAD' : 'symbol-narrow' : '1.0-0') : '—' }}</td>
-        <td>{{ application.solvencyScore ?? '—' }}</td>
-        <td><p-tag [severity]="applicationStatusSeverity[application.status]" [value]="applicationStatusLabels[application.status]" /></td>
-        <td class="application-actions">
-          @if (application.status === 'EN_ATTENTE_VERIFICATION' || application.status === 'EN_EVALUATION' || application.status === 'EN_ATTENTE_INFO') {
-            <p-button label="Évaluer" size="small" severity="secondary" [outlined]="true" (onClick)="openReviewDialog(application)" />
-            <p-button label="Accepter" size="small" severity="success" [outlined]="true" (onClick)="openDecisionDialog(application, true)" />
-            <p-button label="Refuser" size="small" severity="danger" [outlined]="true" (onClick)="openDecisionDialog(application, false)" />
+  <div class="surface-card">
+    <p-tabs value="informations">
+      <p-tablist>
+        <p-tab value="informations"><i class="pi pi-info-circle"></i> Informations</p-tab>
+        <p-tab value="tenant"><i class="pi pi-user"></i> Locataire actuel</p-tab>
+        <p-tab value="documents"><i class="pi pi-file"></i> Documents</p-tab>
+        <p-tab value="history"><i class="pi pi-history"></i> Historique</p-tab>
+        <p-tab value="applications"><i class="pi pi-file-edit"></i> Candidatures</p-tab>
+        <p-tab value="leases"><i class="pi pi-key"></i> Baux</p-tab>
+      </p-tablist>
+
+      <p-tabpanels>
+        <!-- INFORMATIONS -->
+        <p-tabpanel value="informations">
+          <h3>Informations générales</h3>
+          <dl class="unit-info-list">
+            <div><dt>Numéro d'appartement</dt><dd>{{ unit.label }}</dd></div>
+            <div><dt>Étage</dt><dd>{{ unit.floor ?? '—' }}</dd></div>
+            <div><dt>Nombre de chambres</dt><dd>{{ unit.bedrooms ?? '—' }}</dd></div>
+            <div><dt>Nombre de salles de bain</dt><dd>{{ unit.bathrooms ?? '—' }}</dd></div>
+            <div><dt>Surface</dt><dd>{{ unit.areaSquareMeters ? unit.areaSquareMeters + ' m²' : '—' }}</dd></div>
+            <div><dt>Type</dt><dd>{{ unit.type ? unitTypeLabels[unit.type] : '—' }}</dd></div>
+            @if (unit.listedRent) {
+              <div><dt>Loyer affiché</dt><dd>{{ unit.listedRent | currency: 'CAD' : 'symbol-narrow' : '1.0-0' }} / mois</dd></div>
+            }
+          </dl>
+          @if (unit.description) {
+            <p class="unit-description">{{ unit.description }}</p>
           }
-        </td>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="emptymessage">
-      <tr><td colspan="5" class="empty-state"><i class="pi pi-file-edit"></i><p>Aucune candidature reçue pour cette unité.</p></td></tr>
-    </ng-template>
-  </p-table>
-</div>
+        </p-tabpanel>
 
-<div class="surface-card">
-  <div class="section-header">
-    <h3>Historique des baux</h3>
-    <p-button label="Nouveau bail" icon="pi pi-plus" size="small" (onClick)="openDialog()" />
-  </div>
-
-  <p-table [value]="leases()" dataKey="id" [rowHover]="true" responsiveLayout="scroll">
-    <ng-template pTemplate="header">
-      <tr>
-        <th>Locataire(s)</th>
-        <th>Début</th>
-        <th>Fin</th>
-        <th>Loyer mensuel</th>
-        <th>Dépôt de garantie</th>
-        <th>Statut</th>
-        <th></th>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="body" let-lease>
-      <tr>
-        <td class="clickable-row" (click)="openLease(lease)">{{ lease.tenantIds.length ? lease.tenantIds.map(tenantName).join(', ') : '—' }}</td>
-        <td class="clickable-row" (click)="openLease(lease)">{{ lease.startDate | date: 'd MMM yyyy' }}</td>
-        <td class="clickable-row" (click)="openLease(lease)">{{ lease.endDate ? (lease.endDate | date: 'd MMM yyyy') : 'Indéterminée' }}</td>
-        <td class="clickable-row" (click)="openLease(lease)">{{ lease.monthlyRent | currency: 'CAD' : 'symbol-narrow' : '1.0-0' }}</td>
-        <td>
-          {{ lease.securityDeposit | currency: 'CAD' : 'symbol-narrow' : '1.0-0' }}
-          @if (lease.securityDepositPaidAt) {
-            <p-tag severity="success" value="Versé" styleClass="ml-2" />
+        <!-- LOCATAIRE ACTUEL -->
+        <p-tabpanel value="tenant">
+          @if (activeLease(); as lease) {
+            <div class="tenant-current">
+              <span class="icon-box icon-box-lg icon-box-primary"><i class="pi pi-user"></i></span>
+              <div>
+                <div class="tenant-current-name">{{ lease.tenantIds.length ? lease.tenantIds.map(tenantName).join(', ') : '—' }}</div>
+                <div class="tenant-current-detail">Bail depuis le {{ lease.startDate | date: 'd MMM yyyy' }} · {{ lease.monthlyRent | currency: 'CAD' : 'symbol-narrow' : '1.0-0' }}/mois</div>
+              </div>
+            </div>
           } @else {
-            <p-button label="Enregistrer" size="small" [text]="true" (onClick)="recordSecurityDepositPayment(lease)" />
+            <div class="empty-state"><i class="pi pi-user"></i><p>Aucun locataire actuel.</p></div>
           }
-        </td>
-        <td class="clickable-row" (click)="openLease(lease)"><p-tag [severity]="leaseStatusSeverity[lease.status]" [value]="leaseStatusLabels[lease.status]" /></td>
-        <td><p-button icon="pi pi-chevron-right" [text]="true" [rounded]="true" severity="secondary" (onClick)="openLease(lease)" /></td>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="emptymessage">
-      <tr><td colspan="7" class="empty-state"><i class="pi pi-file-edit"></i><p>Aucun bail pour cette unité.</p></td></tr>
-    </ng-template>
-  </p-table>
-</div>
+        </p-tabpanel>
+
+        <!-- DOCUMENTS -->
+        <p-tabpanel value="documents">
+          <div class="empty-state"><i class="pi pi-file"></i><p>Aucun document pour cette unité.</p></div>
+        </p-tabpanel>
+
+        <!-- HISTORIQUE -->
+        <p-tabpanel value="history">
+          @if (leases().length) {
+            <ul class="history-list">
+              @for (lease of leases(); track lease.id) {
+                <li>
+                  <span class="icon-box icon-box-sm icon-box-neutral"><i class="pi pi-key"></i></span>
+                  <div>
+                    <div class="history-list-title">{{ lease.tenantIds.length ? lease.tenantIds.map(tenantName).join(', ') : '—' }}</div>
+                    <div class="history-list-detail">{{ lease.startDate | date: 'd MMM yyyy' }} — {{ lease.endDate ? (lease.endDate | date: 'd MMM yyyy') : 'indéterminée' }}</div>
+                  </div>
+                  <p-tag [severity]="leaseStatusSeverity[lease.status]" [value]="leaseStatusLabels[lease.status]" />
+                </li>
+              }
+            </ul>
+          } @else {
+            <div class="empty-state"><i class="pi pi-history"></i><p>Aucun historique pour cette unité.</p></div>
+          }
+        </p-tabpanel>
+
+        <!-- CANDIDATURES -->
+        <p-tabpanel value="applications">
+          <div class="tab-actions">
+            <p-button label="Lien de candidature" icon="pi pi-link" size="small" severity="secondary" [outlined]="true" (onClick)="copyApplicationLink()" />
+          </div>
+          <p-table [value]="applications()" dataKey="id" [rowHover]="true" responsiveLayout="scroll">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Candidat</th>
+                <th>Revenu mensuel</th>
+                <th>Score</th>
+                <th>Statut</th>
+                <th></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-application>
+              <tr class="clickable-row" (click)="openApplicationReview(application)">
+                <td>
+                  <div class="entity-name">{{ application.firstName }} {{ application.lastName }}</div>
+                  <div class="entity-subtext">{{ application.email }} · {{ application.phone }}</div>
+                </td>
+                <td>{{ application.monthlyIncome ? (application.monthlyIncome | currency: 'CAD' : 'symbol-narrow' : '1.0-0') : '—' }}</td>
+                <td>{{ application.solvencyScore ?? '—' }}</td>
+                <td><p-tag [severity]="applicationStatusSeverity[application.status]" [value]="applicationStatusLabels[application.status]" /></td>
+                <td><p-button icon="pi pi-chevron-right" [text]="true" [rounded]="true" severity="secondary" /></td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr><td colspan="5" class="empty-state"><i class="pi pi-file-edit"></i><p>Aucune candidature reçue pour cette unité.</p></td></tr>
+            </ng-template>
+          </p-table>
+        </p-tabpanel>
+
+        <!-- BAUX -->
+        <p-tabpanel value="leases">
+          <div class="tab-actions">
+            <p-button label="Nouveau bail" icon="pi pi-plus" size="small" (onClick)="openDialog()" />
+          </div>
+          <p-table [value]="leases()" dataKey="id" [rowHover]="true" responsiveLayout="scroll">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Locataire(s)</th>
+                <th>Début</th>
+                <th>Fin</th>
+                <th>Loyer mensuel</th>
+                <th>Dépôt de garantie</th>
+                <th>Statut</th>
+                <th></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-lease>
+              <tr>
+                <td class="clickable-row" (click)="openLease(lease)">{{ lease.tenantIds.length ? lease.tenantIds.map(tenantName).join(', ') : '—' }}</td>
+                <td class="clickable-row" (click)="openLease(lease)">{{ lease.startDate | date: 'd MMM yyyy' }}</td>
+                <td class="clickable-row" (click)="openLease(lease)">{{ lease.endDate ? (lease.endDate | date: 'd MMM yyyy') : 'Indéterminée' }}</td>
+                <td class="clickable-row" (click)="openLease(lease)">{{ lease.monthlyRent | currency: 'CAD' : 'symbol-narrow' : '1.0-0' }}</td>
+                <td>
+                  {{ lease.securityDeposit | currency: 'CAD' : 'symbol-narrow' : '1.0-0' }}
+                  @if (lease.securityDepositPaidAt) {
+                    <p-tag severity="success" value="Versé" styleClass="ml-2" />
+                  } @else {
+                    <p-button label="Enregistrer" size="small" [text]="true" (onClick)="recordSecurityDepositPayment(lease)" />
+                  }
+                </td>
+                <td class="clickable-row" (click)="openLease(lease)"><p-tag [severity]="leaseStatusSeverity[lease.status]" [value]="leaseStatusLabels[lease.status]" /></td>
+                <td><p-button icon="pi pi-chevron-right" [text]="true" [rounded]="true" severity="secondary" (onClick)="openLease(lease)" /></td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr><td colspan="7" class="empty-state"><i class="pi pi-file-edit"></i><p>Aucun bail pour cette unité.</p></td></tr>
+            </ng-template>
+          </p-table>
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
+  </div>
+}
 
 <p-dialog header="Nouveau bail" [modal]="true" [(visible)]="dialogVisible" [style]="{ width: '30rem' }">
   <form [formGroup]="form" (ngSubmit)="submit()" class="entity-form">
@@ -166,36 +224,6 @@
     <div class="dialog-actions">
       <p-button label="Annuler" severity="secondary" [text]="true" (onClick)="dialogVisible.set(false)" type="button" />
       <p-button label="Créer le bail" icon="pi pi-check" type="submit" [loading]="submitting()" />
-    </div>
-  </form>
-</p-dialog>
-
-<p-dialog header="Évaluer la candidature" [modal]="true" [(visible)]="reviewDialogVisible" [style]="{ width: '28rem' }">
-  <form [formGroup]="reviewForm" (ngSubmit)="submitReview()" class="entity-form">
-    <div class="field">
-      <label for="solvencyScore">Score de solvabilité (0-100)</label>
-      <p-inputnumber inputId="solvencyScore" formControlName="solvencyScore" [min]="0" [max]="100" styleClass="w-full" />
-    </div>
-    <div class="field">
-      <label for="reviewComments">Commentaires internes</label>
-      <textarea pTextarea id="reviewComments" formControlName="reviewComments" class="w-full" rows="3"></textarea>
-    </div>
-    <div class="dialog-actions">
-      <p-button label="Annuler" severity="secondary" [text]="true" (onClick)="reviewDialogVisible.set(false)" type="button" />
-      <p-button label="Enregistrer" icon="pi pi-check" type="submit" [loading]="applicationActionSubmitting()" />
-    </div>
-  </form>
-</p-dialog>
-
-<p-dialog header="Décision sur la candidature" [modal]="true" [(visible)]="decisionDialogVisible" [style]="{ width: '28rem' }">
-  <form [formGroup]="decisionForm" (ngSubmit)="submitDecision()" class="entity-form">
-    <div class="field">
-      <label for="decisionReason">Motif (optionnel)</label>
-      <textarea pTextarea id="decisionReason" formControlName="decisionReason" class="w-full" rows="3"></textarea>
-    </div>
-    <div class="dialog-actions">
-      <p-button label="Annuler" severity="secondary" [text]="true" (onClick)="decisionDialogVisible.set(false)" type="button" />
-      <p-button label="Confirmer" icon="pi pi-check" type="submit" [loading]="applicationActionSubmitting()" />
     </div>
   </form>
 </p-dialog>

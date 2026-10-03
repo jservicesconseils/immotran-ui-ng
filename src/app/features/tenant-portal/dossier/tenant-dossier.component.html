@@ -1,0 +1,71 @@
+<h1 class="page-title">Mon dossier de location</h1>
+
+@if (notFound()) {
+  <div class="surface-card empty-state">
+    <i class="pi pi-exclamation-circle"></i>
+    <p>Dossier introuvable. Vérifiez votre numéro de suivi.</p>
+  </div>
+} @else if (application(); as application) {
+  <div class="dossier-card surface-card">
+    <div class="dossier-header">
+      <div>
+        <div class="dossier-id-row">
+          <span class="dossier-id">Dossier #{{ trackingNumber(application) }}</span>
+          <span class="status-badge" [class]="'status-' + statusBadge().severity">{{ statusBadge().label }}</span>
+        </div>
+        <div class="dossier-submitted">Soumis le {{ application.submittedAt | date: 'd MMMM yyyy' }}</div>
+      </div>
+      <div class="dossier-unit">
+        <div class="dossier-unit-photo"><i class="pi pi-home"></i></div>
+        <div>
+          <div class="dossier-unit-title">Appartement {{ application.unitLabel }}</div>
+          <div class="dossier-unit-address">{{ application.propertyStreet }}, {{ application.propertyCity }}</div>
+          @if (application.monthlyRent) {
+            <div class="dossier-unit-price">{{ application.monthlyRent | currency: 'CAD' : 'symbol-narrow' : '1.0-0' }} / mois</div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="timeline">
+      <div class="timeline-step">
+        <div class="timeline-circle" [class]="submittedState()"><i class="pi pi-check"></i></div>
+        <div class="timeline-label">Dossier soumis</div>
+        <div class="timeline-date">{{ application.submittedAt | date: 'd MMM yyyy' }}</div>
+      </div>
+      <div class="timeline-line" [class.done]="submittedState() === 'done'"></div>
+      <div class="timeline-step">
+        <div class="timeline-circle" [class]="studyState()"><i class="pi pi-clock"></i></div>
+        <div class="timeline-label">En étude</div>
+      </div>
+      <div class="timeline-line" [class.done]="decisionState() === 'done'"></div>
+      <div class="timeline-step">
+        <div class="timeline-circle" [class]="decisionState()">3</div>
+        <div class="timeline-label">Décision</div>
+      </div>
+      <div class="timeline-line"></div>
+      <div class="timeline-step">
+        <div class="timeline-circle upcoming">4</div>
+        <div class="timeline-label">Signature du bail</div>
+      </div>
+      <div class="timeline-line"></div>
+      <div class="timeline-step">
+        <div class="timeline-circle upcoming">5</div>
+        <div class="timeline-label">Prise de possession</div>
+      </div>
+    </div>
+
+    @if (isDecided()) {
+      <div class="decision-banner">
+        <i class="pi pi-info-circle"></i>
+        Une décision a été rendue pour votre dossier.
+        <a href="#" (click)="$event.preventDefault(); goToDecision()">Voir la décision →</a>
+      </div>
+    } @else {
+      <div class="info-banner">
+        <i class="pi pi-info-circle"></i>
+        Votre dossier est actuellement en cours d'étude. Nous vous contacterons dans les prochains jours.
+      </div>
+    }
+  </div>
+}

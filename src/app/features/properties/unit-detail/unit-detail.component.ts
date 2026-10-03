@@ -1,5 +1,5 @@
 import { CurrencyPipe, DatePipe, Location } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService, PrimeTemplate } from 'primeng/api';
@@ -10,8 +10,8 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { TableModule } from 'primeng/table';
+import { TabsModule } from 'primeng/tabs';
 import { TagModule } from 'primeng/tag';
-import { TextareaModule } from 'primeng/textarea';
 
 import { AuthService } from '../../../core/auth/auth.service';
 import {
@@ -46,8 +46,8 @@ import { TenantService } from '../../../core/services/tenant.service';
     InputTextModule,
     MultiSelectModule,
     TableModule,
+    TabsModule,
     TagModule,
-    TextareaModule,
     CurrencyPipe,
     DatePipe,
     PrimeTemplate,
@@ -97,19 +97,9 @@ export class UnitDetailComponent {
   readonly applications = signal<ApplicationResponse[]>([]);
   readonly applicationStatusLabels = APPLICATION_STATUS_LABELS;
   readonly applicationStatusSeverity = APPLICATION_STATUS_SEVERITY;
-  readonly reviewDialogVisible = signal(false);
-  readonly decisionDialogVisible = signal(false);
-  readonly applicationActionSubmitting = signal(false);
-  readonly reviewingApplicationId = signal<string | null>(null);
-  readonly decidingApplicationId = signal<string | null>(null);
-  readonly reviewForm = this.fb.nonNullable.group({
-    solvencyScore: this.fb.control<number | null>(null, [Validators.min(0), Validators.max(100)]),
-    reviewComments: this.fb.control<string | null>(null, Validators.maxLength(2000)),
-  });
-  readonly decisionForm = this.fb.nonNullable.group({
-    accepted: this.fb.nonNullable.control<boolean>(true),
-    decisionReason: this.fb.control<string | null>(null, Validators.maxLength(2000)),
-  });
+
+  // --- Locataire actuel ----------------------------------------------
+  readonly activeLease = computed(() => this.leases().find((lease) => lease.status === 'ACTIVE') ?? null);
 
   constructor() {
     this.load();
@@ -184,59 +174,11 @@ export class UnitDetailComponent {
     });
   }
 
-  openReviewDialog(application: ApplicationResponse): void {
-    this.reviewingApplicationId.set(application.id);
-    this.reviewForm.reset({ solvencyScore: application.solvencyScore, reviewComments: application.reviewComments });
-    this.reviewDialogVisible.set(true);
-  }
-
-  submitReview(): void {
-    const applicationId = this.reviewingApplicationId();
-    if (!applicationId || this.reviewForm.invalid) {
-      this.reviewForm.markAllAsTouched();
-      return;
-    }
-    this.applicationActionSubmitting.set(true);
-    const value = this.reviewForm.getRawValue();
-    this.applicationService.review(this.propertyId, this.unitId, applicationId, value).subscribe({
-      next: () => {
-        this.applicationActionSubmitting.set(false);
-        this.reviewDialogVisible.set(false);
-        this.messageService.add({ severity: 'success', summary: 'Candidature évaluée' });
-        this.loadApplications();
-      },
-      error: () => {
-        this.applicationActionSubmitting.set(false);
-        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: "L'évaluation a échoué." });
-      },
-    });
-  }
-
-  openDecisionDialog(application: ApplicationResponse, accepted: boolean): void {
-    this.decidingApplicationId.set(application.id);
-    this.decisionForm.reset({ accepted, decisionReason: null });
-    this.decisionDialogVisible.set(true);
-  }
-
-  submitDecision(): void {
-    const applicationId = this.decidingApplicationId();
-    if (!applicationId) {
-      return;
-    }
-    this.applicationActionSubmitting.set(true);
-    const value = this.decisionForm.getRawValue();
-    this.applicationService.decide(this.propertyId, this.unitId, applicationId, value).subscribe({
-      next: () => {
-        this.applicationActionSubmitting.set(false);
-        this.decisionDialogVisible.set(false);
-        this.messageService.add({ severity: 'success', summary: value.accepted ? 'Candidature acceptée' : 'Candidature refusée' });
-        this.loadApplications();
-      },
-      error: () => {
-        this.applicationActionSubmitting.set(false);
-        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'La décision a échoué.' });
-      },
-    });
+  // Remplace les anciens dialogues ponctuels (evaluer/accepter/refuser) :
+  // meme workflow, maintenant sur la page dediee ApplicationReviewComponent
+  // (voir maquette, ecran 12).
+  openApplicationReview(application: ApplicationResponse): void {
+    this.router.navigate(['/properties', this.propertyId, 'units', this.unitId, 'applications', application.id, 'review']);
   }
 
   openDialog(): void {

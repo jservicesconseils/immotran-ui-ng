@@ -1,0 +1,287 @@
+.review-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+
+  h1 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--p-surface-900);
+  }
+}
+
+.review-subheader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.review-dossier-id {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--p-surface-900);
+}
+
+.status-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: 1rem;
+
+  &.status-warn {
+    background: #fef3c7;
+    color: #b45309;
+  }
+
+  &.status-success {
+    background: #d1fae5;
+    color: #047857;
+  }
+
+  &.status-danger {
+    background: #fee2e2;
+    color: #b91c1c;
+  }
+}
+
+.review-layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 1.5rem;
+  align-items: start;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.review-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.75rem;
+}
+
+.review-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.6rem;
+  border: none;
+  background: transparent;
+  color: var(--p-surface-600);
+  font-size: 0.82rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+
+  .pi {
+    font-size: 0.9rem;
+    width: 1rem;
+  }
+
+  &:hover {
+    background: var(--p-surface-50);
+  }
+
+  &.active {
+    background: color-mix(in srgb, var(--p-primary-500) 10%, white);
+    color: var(--p-primary-700);
+    font-weight: 700;
+  }
+}
+
+.review-main {
+  padding: 1.5rem 1.75rem;
+
+  h2 {
+    margin: 0 0 1.25rem;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--p-surface-900);
+  }
+}
+
+// --- Informations --------------------------------------------------
+.info-list {
+  margin: 0 0 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.9rem 1.5rem;
+
+  dt {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--p-surface-400);
+  }
+
+  dd {
+    margin: 0.15rem 0 0;
+    font-size: 0.875rem;
+    color: var(--p-surface-900);
+  }
+}
+
+.review-note {
+  color: var(--p-surface-600);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  margin: 0 0 1.5rem;
+}
+
+// --- Solvabilite ------------------------------------------------------
+.solvability-layout {
+  display: flex;
+  gap: 2.5rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.score-circle {
+  width: 9rem;
+  height: 9rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(closest-side, white 79%, transparent 80% 100%),
+    conic-gradient(#10b981 var(--score-pct, 0%), #e5e7eb 0);
+}
+
+.score-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--p-surface-900);
+}
+
+.score-max {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--p-surface-400);
+}
+
+.criteria-list {
+  flex: 1;
+  min-width: 200px;
+
+  h3 {
+    margin: 0 0 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--p-surface-900);
+  }
+}
+
+.criterion-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--p-surface-700);
+  padding: 0.35rem 0;
+
+  .pi {
+    color: #10b981;
+  }
+}
+
+// --- Evaluation --------------------------------------------------------
+.evaluation-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  max-width: 20rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+
+  label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--p-surface-700);
+  }
+}
+
+// --- Decision ------------------------------------------------------------
+.decision-result {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem 1.1rem;
+  border-radius: 0.75rem;
+  margin-bottom: 1.5rem;
+
+  .pi {
+    font-size: 1.4rem;
+  }
+
+  &.approved {
+    background: #d1fae5;
+    color: #047857;
+  }
+
+  &.refused {
+    background: #fee2e2;
+    color: #b91c1c;
+  }
+}
+
+.decision-result-title {
+  font-weight: 700;
+}
+
+.decision-result-reason {
+  font-size: 0.82rem;
+  opacity: 0.85;
+  margin-top: 0.2rem;
+}
+
+// --- Commentaires + actions ------------------------------------------
+.comments-field {
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--p-surface-100);
+  margin-bottom: 1.25rem;
+}
+
+.review-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+
+  ::ng-deep .btn-amber {
+    background: #f59e0b;
+    border-color: #f59e0b;
+    color: #fff;
+
+    &:hover {
+      background: #d97706;
+      border-color: #d97706;
+    }
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--p-surface-400);
+
+  .pi {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+    display: block;
+  }
+}

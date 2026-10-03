@@ -87,6 +87,7 @@ describe('PropertyService', () => {
       bathrooms: 1,
       type: null,
       description: null,
+      listedRent: null,
     };
     const response: UnitResponse = { id: 'u-1', propertyId: 'p-1', ...request, status: 'DISPONIBLE', createdAt: '2026-01-01T00:00:00Z' };
 
@@ -111,5 +112,13 @@ describe('PropertyService', () => {
     const req = httpMock.expectOne((r) => r.url === baseUrl && r.params.get('organizationId') === 'org-1');
     expect(req.request.method).toBe('GET');
     req.flush([]);
+  });
+
+  it('consulterLAnnonceDUneUnite_appelleLeChminPublic', () => {
+    service.getUnitListing('p-1', 'u-1').subscribe();
+
+    const req = httpMock.expectOne(`${baseUrl}/p-1/units/u-1/listing`);
+    expect(req.request.method).toBe('GET');
+    req.flush({});
   });
 });

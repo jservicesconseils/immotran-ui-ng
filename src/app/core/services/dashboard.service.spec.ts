@@ -30,6 +30,8 @@ describe('DashboardService', () => {
       totalRevenue: 18000,
       totalExpenses: 3200,
       leasesExpiringNext30Days: 1,
+      openApplications: 2,
+      recentApplications: [],
     };
 
     service.getForOrganization('org-1').subscribe((result) => expect(result).toEqual(response));

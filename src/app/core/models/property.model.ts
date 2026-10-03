@@ -63,6 +63,7 @@ export interface UnitResponse {
   bathrooms: number | null;
   type: UnitType | null;
   description: string | null;
+  listedRent: number | null;
   status: UnitStatus;
   createdAt: string;
 }
@@ -76,6 +77,27 @@ export interface CreateUnitRequest {
   bathrooms: number | null;
   type: UnitType | null;
   description: string | null;
+  listedRent: number | null;
+}
+
+/**
+ * Vue publique minimale d'une unite (annonce), consultable sans jeton
+ * par un candidat avant qu'il postule -- voir
+ * PropertyController.getUnitListing cote backend.
+ */
+export interface UnitListingResponse {
+  propertyId: string;
+  unitId: string;
+  unitLabel: string;
+  type: UnitType | null;
+  bedrooms: number | null;
+  bathrooms: number | null;
+  areaSquareMeters: number | null;
+  listedRent: number | null;
+  propertyStreet: string;
+  propertyCity: string;
+  propertyProvince: string;
+  status: UnitStatus;
 }
 
 export const PROPERTY_TYPE_LABELS: Record<string, string> = {

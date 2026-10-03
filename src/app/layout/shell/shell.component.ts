@@ -1,4 +1,3 @@
-import { NgClass } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AvatarModule } from 'primeng/avatar';
@@ -10,13 +9,12 @@ interface NavItem {
   label: string;
   icon: string;
   route: string;
-  iconClass: string;
 }
 
 @Component({
   selector: 'app-shell',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, NgClass, AvatarModule, ButtonModule, TooltipModule],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, AvatarModule, ButtonModule, TooltipModule],
   templateUrl: './shell.component.html',
   styleUrl: './shell.component.scss',
 })
@@ -26,12 +24,24 @@ export class ShellComponent {
 
   readonly session = this.auth.session;
 
+  // Liste et ordre alignes sur la maquette de reference (ecran 09). Les
+  // routes sans page dediee dans ce MVP pointent vers une page "bientot
+  // disponible" (voir ManagerPlaceholderComponent) plutot que de laisser
+  // un lien mort. Propriétaires et Règles juridictionnelles sont des
+  // fonctionnalites reelles absentes de la maquette -- ajoutees en fin
+  // de liste plutot que supprimees.
   readonly navItems: NavItem[] = [
-    { label: 'Tableau de bord', icon: 'pi pi-home', route: '/dashboard', iconClass: 'icon-box-primary' },
-    { label: 'Propriétés', icon: 'pi pi-building', route: '/properties', iconClass: 'icon-box-success' },
-    { label: 'Propriétaires', icon: 'pi pi-id-card', route: '/owners', iconClass: 'icon-box-warning' },
-    { label: 'Locataires', icon: 'pi pi-users', route: '/tenants', iconClass: 'icon-box-neutral' },
-    { label: 'Règles juridictionnelles', icon: 'pi pi-shield', route: '/admin/jurisdiction-rules', iconClass: 'icon-box-danger' },
+    { label: 'Tableau de bord', icon: 'pi pi-home', route: '/dashboard' },
+    { label: 'Immeubles', icon: 'pi pi-building', route: '/properties' },
+    { label: 'Appartements', icon: 'pi pi-th-large', route: '/appartements' },
+    { label: 'Dossiers de location', icon: 'pi pi-file', route: '/dossiers-location' },
+    { label: 'Locataires', icon: 'pi pi-users', route: '/tenants' },
+    { label: 'Baux', icon: 'pi pi-file-edit', route: '/baux' },
+    { label: 'Paiements', icon: 'pi pi-wallet', route: '/paiements' },
+    { label: 'Rapports', icon: 'pi pi-chart-bar', route: '/rapports' },
+    { label: 'Paramètres', icon: 'pi pi-cog', route: '/parametres' },
+    { label: 'Propriétaires', icon: 'pi pi-id-card', route: '/owners' },
+    { label: 'Règles juridictionnelles', icon: 'pi pi-shield', route: '/admin/jurisdiction-rules' },
   ];
 
   initials(): string {

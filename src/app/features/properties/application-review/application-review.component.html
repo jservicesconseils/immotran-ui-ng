@@ -1,0 +1,115 @@
+@if (application(); as application) {
+  <div class="review-header">
+    <p-button icon="pi pi-arrow-left" [text]="true" [rounded]="true" severity="secondary" (onClick)="goBack()" />
+    <h1>Étude du dossier - Gestionnaire</h1>
+  </div>
+
+  <div class="review-subheader surface-card">
+    <span class="review-dossier-id">Dossier #DL-{{ application.id.slice(0, 8) | uppercase }}</span>
+    <span class="status-badge" [class]="'status-' + (application.status === 'ACCEPTEE' ? 'success' : application.status === 'REFUSEE' ? 'danger' : 'warn')">
+      {{ statusLabels[application.status] }}
+    </span>
+  </div>
+
+  <div class="review-layout">
+    <nav class="review-nav surface-card">
+      @for (nav of navSections; track nav.key) {
+        <button type="button" class="review-nav-item" [class.active]="section() === nav.key" (click)="section.set(nav.key)">
+          <i class="pi" [class]="nav.icon"></i>
+          <span>{{ nav.label }}</span>
+        </button>
+      }
+    </nav>
+
+    <div class="review-main surface-card">
+      @switch (section()) {
+        @case ('informations') {
+          <h2>Informations du candidat</h2>
+          <dl class="info-list">
+            <div><dt>Nom complet</dt><dd>{{ application.firstName }} {{ application.lastName }}</dd></div>
+            <div><dt>Courriel</dt><dd>{{ application.email }}</dd></div>
+            <div><dt>Téléphone</dt><dd>{{ application.phone }}</dd></div>
+            @if (application.dateOfBirth) {
+              <div><dt>Date de naissance</dt><dd>{{ application.dateOfBirth }}</dd></div>
+            }
+            @if (application.currentAddress) {
+              <div><dt>Adresse actuelle</dt><dd>{{ application.currentAddress }}</dd></div>
+            }
+            @if (application.profession) {
+              <div><dt>Profession</dt><dd>{{ application.profession }}</dd></div>
+            }
+            @if (application.employerName) {
+              <div><dt>Employeur</dt><dd>{{ application.employerName }}</dd></div>
+            }
+            @if (application.monthlyIncome) {
+              <div><dt>Revenu mensuel</dt><dd>{{ application.monthlyIncome | currency: 'CAD' : 'symbol-narrow' : '1.0-0' }}</dd></div>
+            }
+          </dl>
+        }
+        @case ('pieces') {
+          <h2>Pièces fournies</h2>
+          <p class="review-note">
+            Le candidat a téléversé ses documents lors du dépôt de dossier. La vérification des pièces (identité, preuve de
+            revenus, relevés bancaires, références) se fait hors plateforme pour ce MVP.
+          </p>
+        }
+        @case ('solvabilite') {
+          <h2>Vérification de solvabilité</h2>
+          <div class="solvability-layout">
+            <div class="score-circle" [style.--score-pct]="(reviewForm.controls.solvencyScore.value ?? 0) + '%'">
+              <div class="score-value">{{ reviewForm.controls.solvencyScore.value ?? '—' }}<span class="score-max">/100</span></div>
+            </div>
+            <div class="criteria-list">
+              <h3>Critères d'évaluation</h3>
+              @for (criterion of criteria; track criterion) {
+                <div class="criterion-row"><i class="pi pi-check-circle"></i> {{ criterion }}</div>
+              }
+            </div>
+          </div>
+        }
+        @case ('evaluation') {
+          <h2>Évaluation</h2>
+          <form [formGroup]="reviewForm" class="evaluation-form">
+            <div class="field">
+              <label for="solvencyScore">Score de solvabilité (0-100)</label>
+              <p-inputnumber inputId="solvencyScore" formControlName="solvencyScore" [min]="0" [max]="100" styleClass="w-full" />
+            </div>
+            <p-button label="Enregistrer l'évaluation" icon="pi pi-save" severity="secondary" [outlined]="true" [loading]="savingReview()" (onClick)="saveEvaluation()" type="button" />
+          </form>
+        }
+        @case ('decision') {
+          <h2>Décision</h2>
+          @if (application.status === 'ACCEPTEE' || application.status === 'REFUSEE') {
+            <div class="decision-result" [class.approved]="application.status === 'ACCEPTEE'" [class.refused]="application.status === 'REFUSEE'">
+              <i class="pi" [class]="application.status === 'ACCEPTEE' ? 'pi-check-circle' : 'pi-times-circle'"></i>
+              <div>
+                <div class="decision-result-title">{{ application.status === 'ACCEPTEE' ? 'Dossier approuvé' : 'Dossier refusé' }}</div>
+                @if (application.decisionReason) {
+                  <div class="decision-result-reason">{{ application.decisionReason }}</div>
+                }
+              </div>
+            </div>
+          } @else {
+            <p class="review-note">Aucune décision rendue pour le moment. Utilisez les actions ci-dessous.</p>
+          }
+        }
+      }
+
+      <div class="field comments-field">
+        <label for="reviewComments">Commentaires</label>
+        <textarea pTextarea id="reviewComments" [formControl]="reviewForm.controls.reviewComments" class="w-full" rows="2" placeholder="Dossier solide, revenu stable, bonnes références..."></textarea>
+      </div>
+
+      <div class="review-actions">
+        <p-button label="Refuser" severity="danger" [loading]="decidingAction() === 'refused'" (onClick)="decide(false)" type="button" />
+        <p-button label="Demander plus d'informations" styleClass="btn-amber" [loading]="decidingAction() === 'info'" (onClick)="requestInfo()" type="button" />
+        <p-button label="Approuver" severity="success" [loading]="decidingAction() === 'accepted'" (onClick)="decide(true)" type="button" />
+      </div>
+    </div>
+  </div>
+} @else if (!loading()) {
+  <div class="surface-card empty-state">
+    <i class="pi pi-exclamation-circle"></i>
+    <p>Dossier introuvable.</p>
+  </div>
+}

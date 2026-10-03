@@ -8,6 +8,7 @@ import {
   RequestAdditionalInfoRequest,
   ReviewApplicationRequest,
   SubmitApplicationRequest,
+  TenantApplicationStatusResponse,
 } from '../models/application.model';
 
 @Injectable({ providedIn: 'root' })
@@ -52,5 +53,11 @@ export class ApplicationService {
 
   decide(propertyId: string, unitId: string, applicationId: string, request: DecideApplicationRequest): Observable<ApplicationResponse> {
     return this.http.put<ApplicationResponse>(`${this.applicationsUrl(propertyId, unitId)}/${applicationId}/decision`, request);
+  }
+
+  // Suivi public (espace locataire, voir ApplicationPublicStatusController) :
+  // le candidat consulte sa propre candidature par le seul id, sans jeton.
+  getPublicStatus(applicationId: string): Observable<TenantApplicationStatusResponse> {
+    return this.http.get<TenantApplicationStatusResponse>(`${this.baseUrl}/applications/${applicationId}/status`);
   }
 }

@@ -1,41 +1,53 @@
-import { CurrencyPipe, NgClass } from '@angular/common';
+import { CurrencyPipe, DatePipe, UpperCasePipe } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { ChartModule } from 'primeng/chart';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { TagModule } from 'primeng/tag';
 import { AuthService } from '../../core/auth/auth.service';
 import { DashboardService } from '../../core/services/dashboard.service';
-import { DashboardResponse } from '../../core/models/dashboard.model';
+import { APPLICATION_STATUS_LABELS, ApplicationStatus } from '../../core/models/application.model';
+import { DashboardResponse, RecentApplicationResponse } from '../../core/models/dashboard.model';
 import { CHART_COLORS } from '../../core/theme/immotran-preset';
 
-interface KpiCard {
-  label: string;
-  value: string;
-  icon: string;
-  iconClass: string;
-  hint?: string;
-}
+// Libelles simplifies pour le badge "Dossiers recents" (voir maquette,
+// ecran 09) : En attente / En etude / Approuve / Refuse, plus synthetiques
+// que les statuts internes detailles (voir APPLICATION_STATUS_LABELS).
+const RECENT_STATUS_LABELS: Record<ApplicationStatus, string> = {
+  EN_ATTENTE_VERIFICATION: 'En attente',
+  EN_EVALUATION: 'En étude',
+  EN_ATTENTE_INFO: 'En attente',
+  ACCEPTEE: 'Approuvé',
+  REFUSEE: 'Refusé',
+};
+
+const RECENT_STATUS_SEVERITY: Record<ApplicationStatus, 'warn' | 'success' | 'danger'> = {
+  EN_ATTENTE_VERIFICATION: 'warn',
+  EN_EVALUATION: 'warn',
+  EN_ATTENTE_INFO: 'warn',
+  ACCEPTEE: 'success',
+  REFUSEE: 'danger',
+};
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [ChartModule, ProgressSpinnerModule, TagModule, CurrencyPipe, NgClass],
+  imports: [RouterLink, ChartModule, ProgressSpinnerModule, CurrencyPipe, DatePipe, UpperCasePipe],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
 export class DashboardComponent {
   private readonly auth = inject(AuthService);
   private readonly dashboardService = inject(DashboardService);
+  private readonly router = inject(Router);
 
   readonly session = this.auth.session;
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
   readonly data = signal<DashboardResponse | null>(null);
 
-  readonly netProfit = computed(() => {
-    const d = this.data();
-    return d ? d.totalRevenue - d.totalExpenses : 0;
-  });
+  readonly statusLabels = APPLICATION_STATUS_LABELS;
+  readonly recentStatusLabels = RECENT_STATUS_LABELS;
+  readonly recentStatusSeverity = RECENT_STATUS_SEVERITY;
 
   readonly occupancyRate = computed(() => {
     const d = this.data();
@@ -43,43 +55,6 @@ export class DashboardComponent {
       return 0;
     }
     return Math.round((d.occupiedUnits / d.totalUnits) * 100);
-  });
-
-  readonly kpiCards = computed<KpiCard[]>(() => {
-    const d = this.data();
-    if (!d) {
-      return [];
-    }
-    return [
-      {
-        label: 'Propriétés',
-        value: `${d.totalProperties}`,
-        icon: 'pi pi-building',
-        iconClass: 'icon-box-primary',
-        hint: `${d.totalUnits} unité(s) au total`,
-      },
-      {
-        label: "Taux d'occupation",
-        value: `${this.occupancyRate()}%`,
-        icon: 'pi pi-key',
-        iconClass: 'icon-box-success',
-        hint: `${d.occupiedUnits} occupée(s) · ${d.vacantUnits} vacante(s)`,
-      },
-      {
-        label: 'Maintenance ouverte',
-        value: `${d.openMaintenanceRequests}`,
-        icon: 'pi pi-wrench',
-        iconClass: 'icon-box-warning',
-        hint: 'Demandes en cours ou ouvertes',
-      },
-      {
-        label: 'Baux à échéance',
-        value: `${d.leasesExpiringNext30Days}`,
-        icon: 'pi pi-calendar-clock',
-        iconClass: 'icon-box-danger',
-        hint: 'Dans les 30 prochains jours',
-      },
-    ];
   });
 
   readonly occupancyChartData = computed(() => {
@@ -98,33 +73,9 @@ export class DashboardComponent {
   });
 
   readonly occupancyChartOptions = {
-    cutout: '68%',
+    cutout: '72%',
     plugins: {
       legend: { position: 'bottom', labels: { usePointStyle: true, padding: 16 } },
-    },
-  };
-
-  readonly financeChartData = computed(() => {
-    const d = this.data();
-    return {
-      labels: ['Revenus', 'Dépenses'],
-      datasets: [
-        {
-          label: 'Montant ($)',
-          data: [d?.totalRevenue ?? 0, d?.totalExpenses ?? 0],
-          backgroundColor: [CHART_COLORS.revenue, CHART_COLORS.expenses],
-          borderRadius: 8,
-          barThickness: 56,
-        },
-      ],
-    };
-  });
-
-  readonly financeChartOptions = {
-    plugins: { legend: { display: false } },
-    scales: {
-      x: { grid: { display: false } },
-      y: { grid: { color: '#e2e8f0' }, beginAtZero: true },
     },
   };
 
@@ -152,5 +103,17 @@ export class DashboardComponent {
         this.loading.set(false);
       },
     });
+  }
+
+  openApplicationReview(application: RecentApplicationResponse): void {
+    this.router.navigate([
+      '/properties',
+      application.propertyId,
+      'units',
+      application.unitId,
+      'applications',
+      application.id,
+      'review',
+    ]);
   }
 }

@@ -120,6 +120,7 @@ export class PropertyDetailComponent {
     bathrooms: this.fb.control<number | null>(null),
     type: this.fb.control<UnitType | null>(null),
     description: this.fb.control<string | null>(null, Validators.maxLength(2000)),
+    listedRent: this.fb.control<number | null>(null),
   });
 
   // --- Owners --------------------------------------------------------
@@ -177,6 +178,13 @@ export class PropertyDetailComponent {
 
   constructor() {
     this.loadProperty();
+  }
+
+  // Pas de formulaire d'edition de propriete dans ce MVP -- le bouton
+  // reste visible (voir la maquette) mais signale honnetement l'absence
+  // de fonctionnalite plutot que de rester silencieusement inerte.
+  editProperty(): void {
+    this.messageService.add({ severity: 'info', summary: 'Bientôt disponible', detail: "L'édition d'une propriété sera ajoutée prochainement." });
   }
 
   goBack(): void {

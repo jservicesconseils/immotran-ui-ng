@@ -28,6 +28,10 @@ describe('ApplicationService', () => {
       phone: '514-555-0100',
       employerName: null,
       monthlyIncome: null,
+      dateOfBirth: null,
+      currentAddress: null,
+      socialInsuranceNumber: null,
+      profession: null,
       references: [{ name: 'Marie Leblanc', phone: null, email: null }],
     };
 
@@ -76,6 +80,14 @@ describe('ApplicationService', () => {
 
     const req = httpMock.expectOne(`${applicationsUrl}/a-1/decision`);
     expect(req.request.method).toBe('PUT');
+    req.flush({});
+  });
+
+  it('consulterLeStatutPublic_appelleLeChminDedie', () => {
+    service.getPublicStatus('a-1').subscribe();
+
+    const req = httpMock.expectOne(`${environment.apiCoreUrl}/applications/a-1/status`);
+    expect(req.request.method).toBe('GET');
     req.flush({});
   });
 });

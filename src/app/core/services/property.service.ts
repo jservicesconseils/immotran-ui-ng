@@ -2,7 +2,13 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { CreatePropertyRequest, CreateUnitRequest, PropertyResponse, UnitResponse } from '../models/property.model';
+import {
+  CreatePropertyRequest,
+  CreateUnitRequest,
+  PropertyResponse,
+  UnitListingResponse,
+  UnitResponse,
+} from '../models/property.model';
 
 @Injectable({ providedIn: 'root' })
 export class PropertyService {
@@ -32,5 +38,11 @@ export class PropertyService {
 
   listUnits(propertyId: string): Observable<UnitResponse[]> {
     return this.http.get<UnitResponse[]>(`${this.baseUrl}/${propertyId}/units`);
+  }
+
+  // Public (voir SecurityConfig cote backend) : annonce consultable sans
+  // jeton, utilisee par le formulaire public de candidature.
+  getUnitListing(propertyId: string, unitId: string): Observable<UnitListingResponse> {
+    return this.http.get<UnitListingResponse>(`${this.baseUrl}/${propertyId}/units/${unitId}/listing`);
   }
 }

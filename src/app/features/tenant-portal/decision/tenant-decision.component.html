@@ -1,0 +1,58 @@
+@if (application(); as application) {
+  <div class="decision-card surface-card">
+    <div class="decision-header">
+      <span class="decision-icon"><i class="pi pi-envelope"></i></span>
+      <h1>Décision sur votre dossier</h1>
+    </div>
+
+    <p class="decision-greeting">Bonjour {{ application.firstName }} {{ application.lastName }},</p>
+
+    @if (application.status === 'ACCEPTEE') {
+      <p class="decision-intro">
+        Nous avons le plaisir de vous informer que votre dossier de location a été <strong>approuvé</strong> !
+      </p>
+
+      <div class="decision-banner approved">
+        <i class="pi pi-check-circle"></i>
+        <div>
+          <div class="decision-banner-title">Dossier approuvé</div>
+          <div class="decision-banner-ref">Numéro de dossier : {{ trackingNumber(application) }}</div>
+        </div>
+      </div>
+
+      <h2>Prochaines étapes :</h2>
+      <ol class="next-steps">
+        <li><span class="next-steps-number">1</span> Signature du bail en ligne</li>
+        @if (application.monthlyRent) {
+          <li><span class="next-steps-number">2</span> Paiement du dépôt de garantie ({{ application.monthlyRent | currency: 'CAD' : 'symbol-narrow' : '1.0-0' }})</li>
+          <li><span class="next-steps-number">3</span> Paiement du premier mois de loyer ({{ application.monthlyRent | currency: 'CAD' : 'symbol-narrow' : '1.0-0' }})</li>
+        }
+        <li><span class="next-steps-number">4</span> Prise de possession</li>
+      </ol>
+
+      <button type="button" class="decision-cta" (click)="goToDossier()">Procéder à la signature du bail</button>
+    } @else if (application.status === 'REFUSEE') {
+      <p class="decision-intro">
+        Après étude de votre dossier, nous sommes au regret de vous informer qu'il n'a pas été retenu pour cette unité.
+      </p>
+
+      <div class="decision-banner refused">
+        <i class="pi pi-times-circle"></i>
+        <div>
+          <div class="decision-banner-title">Dossier refusé</div>
+          <div class="decision-banner-ref">Numéro de dossier : {{ trackingNumber(application) }}</div>
+        </div>
+      </div>
+
+      <button type="button" class="decision-cta secondary" (click)="goToDossier()">Retour à mon dossier</button>
+    } @else {
+      <p class="decision-intro">Aucune décision n'a encore été rendue pour ce dossier.</p>
+      <button type="button" class="decision-cta secondary" (click)="goToDossier()">Retour à mon dossier</button>
+    }
+  </div>
+} @else if (!loading()) {
+  <div class="surface-card empty-state">
+    <i class="pi pi-exclamation-circle"></i>
+    <p>Dossier introuvable.</p>
+  </div>
+}
