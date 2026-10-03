@@ -12,11 +12,14 @@
 }
 
 .building-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
   padding: 1.25rem 1.5rem;
   margin-bottom: 1.5rem;
+}
+
+.building-header-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
 }
 
 .building-photo {
@@ -44,13 +47,52 @@
   }
 
   p {
-    margin: 0;
+    margin: 0 0 0.5rem;
     font-size: 0.85rem;
     color: var(--p-surface-500);
   }
 }
 
-// --- Onglet Informations -------------------------------------------------
+.building-badges {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.building-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.building-kpi-strip {
+  display: flex;
+  gap: 2rem;
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--p-surface-100);
+  flex-wrap: wrap;
+}
+
+.building-kpi-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.building-kpi-value {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--p-surface-900);
+  line-height: 1.2;
+}
+
+.building-kpi-label {
+  font-size: 0.75rem;
+  color: var(--p-surface-500);
+}
+
+// --- Onglet Vue d'ensemble -------------------------------------------------
 .informations-layout {
   display: grid;
   grid-template-columns: 1fr 260px;
@@ -109,9 +151,203 @@
   font-size: 1.75rem;
 }
 
+// --- Onglet Appartements --------------------------------------------------
+.units-kpi-strip {
+  display: flex;
+  gap: 2rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  background: var(--p-surface-50);
+  border-radius: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.units-kpi-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.units-kpi-value {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--p-surface-900);
+
+  &.units-kpi-success {
+    color: #059669;
+  }
+
+  &.units-kpi-warn {
+    color: #d97706;
+  }
+}
+
+.units-kpi-label {
+  font-size: 0.75rem;
+  color: var(--p-surface-500);
+  margin-top: 0.1rem;
+}
+
+.units-filters {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+  align-items: center;
+
+  > :last-child {
+    margin-left: auto;
+  }
+}
+
+.search-field {
+  flex: 1;
+  min-width: 12rem;
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  .pi-search {
+    position: absolute;
+    left: 0.85rem;
+    color: var(--p-surface-400);
+    font-size: 0.85rem;
+  }
+
+  input {
+    width: 100%;
+    padding-left: 2.25rem;
+    height: 2.5rem;
+    border-radius: 6px;
+    border: 1px solid var(--p-surface-300);
+    font: inherit;
+  }
+}
+
+// --- Onglet Proprietaires --------------------------------------------------
+.manager-card {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--p-surface-100);
+
+  h3 {
+    margin: 0 0 0.9rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--p-surface-900);
+  }
+}
+
+.manager-row {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--p-surface-200);
+  border-radius: 0.75rem;
+}
+
+.manager-info {
+  flex: 1;
+}
+
+.manager-name {
+  font-weight: 700;
+  color: var(--p-surface-900);
+  font-size: 0.9rem;
+}
+
+.manager-sub {
+  font-size: 0.78rem;
+  color: var(--p-surface-500);
+}
+
+// --- Onglet Documents / Photos ---------------------------------------------
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.75rem;
+}
+
+.photo-add {
+  height: 7rem;
+  border: 2px dashed var(--p-surface-300);
+  border-radius: 0.75rem;
+  background: var(--p-surface-50);
+  color: var(--p-primary-600);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  font: inherit;
+
+  &:hover {
+    border-color: var(--p-primary-400);
+  }
+
+  .pi {
+    font-size: 1.5rem;
+  }
+
+  span {
+    font-size: 0.75rem;
+    text-align: center;
+    color: var(--p-surface-500);
+    line-height: 1.4;
+  }
+}
+
+.documents-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--p-surface-900);
+}
+
+// --- Onglet Historique -------------------------------------------------
+.history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 0.9rem;
+    border: 1px solid var(--p-surface-200);
+    border-radius: 0.65rem;
+  }
+}
+
+.history-list-title {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--p-surface-900);
+  flex: 1;
+}
+
+.history-list-detail {
+  font-size: 0.78rem;
+  color: var(--p-surface-500);
+}
+
+.history-list-date {
+  font-size: 0.78rem;
+  color: var(--p-surface-400);
+  white-space: nowrap;
+}
+
+// --- Communs ---------------------------------------------------------------
 .tab-actions {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 1rem;
 }
 

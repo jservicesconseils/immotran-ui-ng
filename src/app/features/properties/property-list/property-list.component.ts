@@ -1,82 +1,79 @@
-import { DatePipe } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { CurrencyPipe } from '@angular/common';
+import { Component, inject, signal, computed } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { TextareaModule } from 'primeng/textarea';
 import { SelectModule } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { MessageService, PrimeTemplate } from 'primeng/api';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { AuthService } from '../../../core/auth/auth.service';
-import { CANADIAN_PROVINCES } from '../../../core/constants/provinces';
 import {
-  BUILDING_STATUS_LABELS,
-  BuildingStatus,
   PROPERTY_STATUS_LABELS,
   PROPERTY_STATUS_SEVERITY,
   PROPERTY_TYPE_LABELS,
   PropertyResponse,
+  PropertyStatus,
   PropertyType,
+  UnitResponse,
 } from '../../../core/models/property.model';
 import { PropertyService } from '../../../core/services/property.service';
+
+interface PropertyRow {
+  property: PropertyResponse;
+  unitCount: number;
+  occupancyRate: number | null;
+  monthlyRevenue: number;
+}
 
 @Component({
   selector: 'app-property-list',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    ButtonModule,
-    DialogModule,
-    InputTextModule,
-    InputNumberModule,
-    TextareaModule,
-    SelectModule,
-    TableModule,
-    TagModule,
-    DatePipe,
-    PrimeTemplate,
-  ],
+  imports: [FormsModule, ButtonModule, InputTextModule, SelectModule, TableModule, TagModule, CurrencyPipe, PrimeTemplate],
   templateUrl: './property-list.component.html',
   styleUrl: './property-list.component.scss',
 })
 export class PropertyListComponent {
-  private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
   private readonly propertyService = inject(PropertyService);
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
 
   readonly session = this.auth.session;
-  readonly properties = signal<PropertyResponse[]>([]);
+  readonly rows = signal<PropertyRow[]>([]);
   readonly loading = signal(true);
-  readonly dialogVisible = signal(false);
-  readonly submitting = signal(false);
 
-  readonly propertyTypeOptions = Object.entries(PROPERTY_TYPE_LABELS).map(([value, label]) => ({ label, value }));
-  readonly buildingStatusOptions = Object.entries(BUILDING_STATUS_LABELS).map(([value, label]) => ({ label, value }));
-  readonly provinceOptions = CANADIAN_PROVINCES;
+  readonly searchTerm = signal('');
+  readonly typeFilter = signal<PropertyType | null>(null);
+  readonly statusFilter = signal<PropertyStatus | null>(null);
+  readonly cityFilter = signal<string | null>(null);
+
   readonly statusLabels = PROPERTY_STATUS_LABELS;
   readonly statusSeverity = PROPERTY_STATUS_SEVERITY;
   readonly typeLabels = PROPERTY_TYPE_LABELS;
+  readonly typeOptions = Object.entries(PROPERTY_TYPE_LABELS).map(([value, label]) => ({ label, value }));
+  readonly statusOptions = Object.entries(PROPERTY_STATUS_LABELS).map(([value, label]) => ({ label, value }));
 
-  readonly form = this.fb.nonNullable.group({
-    type: this.fb.nonNullable.control<PropertyType | null>(null, Validators.required),
-    street: ['', [Validators.required, Validators.maxLength(200)]],
-    city: ['', [Validators.required, Validators.maxLength(100)]],
-    province: this.fb.nonNullable.control<string | null>(null, Validators.required),
-    postalCode: ['', [Validators.required, Validators.maxLength(10)]],
-    cadastreNumber: this.fb.nonNullable.control<string | null>(null, Validators.maxLength(50)),
-    taxId: this.fb.nonNullable.control<string | null>(null, Validators.maxLength(50)),
-    buildingStatus: this.fb.nonNullable.control<BuildingStatus | null>(null),
-    yearBuilt: this.fb.nonNullable.control<number | null>(null),
-    floorCount: this.fb.nonNullable.control<number | null>(null),
-    totalSurfaceArea: this.fb.nonNullable.control<number | null>(null),
-    estimatedValue: this.fb.nonNullable.control<number | null>(null),
-    description: this.fb.nonNullable.control<string | null>(null, Validators.maxLength(2000)),
+  readonly cityOptions = computed(() => {
+    const cities = new Set(this.rows().map((row) => row.property.city));
+    return [...cities].sort().map((city) => ({ label: city, value: city }));
+  });
+
+  readonly filteredRows = computed(() => {
+    const term = this.searchTerm().trim().toLowerCase();
+    const type = this.typeFilter();
+    const status = this.statusFilter();
+    const city = this.cityFilter();
+    return this.rows().filter((row) => {
+      const matchesTerm = !term || row.property.street.toLowerCase().includes(term) || (row.property.name ?? '').toLowerCase().includes(term);
+      const matchesType = !type || row.property.type === type;
+      const matchesStatus = !status || row.property.status === status;
+      const matchesCity = !city || row.property.city === city;
+      return matchesTerm && matchesType && matchesStatus && matchesCity;
+    });
   });
 
   constructor() {
@@ -93,8 +90,25 @@ export class PropertyListComponent {
     this.loading.set(true);
     this.propertyService.listByOrganization(organizationId).subscribe({
       next: (properties) => {
-        this.properties.set(properties);
-        this.loading.set(false);
+        if (!properties.length) {
+          this.rows.set([]);
+          this.loading.set(false);
+          return;
+        }
+        // Pas d'endpoint agregeant appartements/occupation/revenu par
+        // propriete (hors scope du MVP) -- on calcule cote client a
+        // partir des unites de chaque propriete, acceptable pour un
+        // portefeuille de cette taille.
+        forkJoin(
+          properties.map((property) =>
+            this.propertyService.listUnits(property.id).pipe(catchError(() => of<UnitResponse[]>([])))
+          )
+        ).subscribe((unitsByProperty) => {
+          this.rows.set(
+            properties.map((property, index) => this.toRow(property, unitsByProperty[index]))
+          );
+          this.loading.set(false);
+        });
       },
       error: () => {
         this.loading.set(false);
@@ -103,57 +117,18 @@ export class PropertyListComponent {
     });
   }
 
-  openDialog(): void {
-    this.form.reset();
-    this.dialogVisible.set(true);
+  private toRow(property: PropertyResponse, units: UnitResponse[]): PropertyRow {
+    const occupied = units.filter((unit) => unit.status === 'OCCUPEE');
+    const occupancyRate = units.length ? Math.round((occupied.length / units.length) * 100) : null;
+    const monthlyRevenue = occupied.reduce((sum, unit) => sum + (unit.listedRent ?? 0), 0);
+    return { property, unitCount: units.length, occupancyRate, monthlyRevenue };
   }
 
-  submit(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
-
-    const organizationId = this.session()?.organizationId;
-    if (!organizationId) {
-      return;
-    }
-
-    const value = this.form.getRawValue();
-    this.submitting.set(true);
-
-    this.propertyService
-      .create({
-        organizationId,
-        type: value.type!,
-        street: value.street,
-        city: value.city,
-        province: value.province!,
-        postalCode: value.postalCode,
-        cadastreNumber: value.cadastreNumber,
-        taxId: value.taxId,
-        buildingStatus: value.buildingStatus,
-        yearBuilt: value.yearBuilt,
-        floorCount: value.floorCount,
-        totalSurfaceArea: value.totalSurfaceArea,
-        estimatedValue: value.estimatedValue,
-        description: value.description,
-      })
-      .subscribe({
-        next: () => {
-          this.submitting.set(false);
-          this.dialogVisible.set(false);
-          this.messageService.add({ severity: 'success', summary: 'Propriété créée', detail: 'La propriété a été ajoutée au portefeuille.' });
-          this.load();
-        },
-        error: () => {
-          this.submitting.set(false);
-          this.messageService.add({ severity: 'error', summary: 'Erreur', detail: "La création de la propriété a échoué." });
-        },
-      });
+  newProperty(): void {
+    this.router.navigate(['/properties/new']);
   }
 
-  openProperty(property: PropertyResponse): void {
-    this.router.navigate(['/properties', property.id]);
+  openProperty(row: PropertyRow): void {
+    this.router.navigate(['/properties', row.property.id]);
   }
 }

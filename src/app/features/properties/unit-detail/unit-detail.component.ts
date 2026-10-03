@@ -109,6 +109,10 @@ export class UnitDetailComponent {
     this.location.back();
   }
 
+  editUnit(): void {
+    this.router.navigate(['/properties', this.propertyId, 'units', this.unitId, 'edit']);
+  }
+
   // Arrow function (pas une methode de classe) : utilisee comme callback
   // direct dans lease.tenantIds.map(tenantName) au template, ou une
   // methode perdrait son "this" en etant passee par reference.

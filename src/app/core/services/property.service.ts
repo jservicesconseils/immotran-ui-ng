@@ -8,6 +8,8 @@ import {
   PropertyResponse,
   UnitListingResponse,
   UnitResponse,
+  UpdatePropertyRequest,
+  UpdateUnitRequest,
 } from '../models/property.model';
 
 @Injectable({ providedIn: 'root' })
@@ -23,6 +25,10 @@ export class PropertyService {
     return this.http.get<PropertyResponse>(`${this.baseUrl}/${id}`);
   }
 
+  update(id: string, request: UpdatePropertyRequest): Observable<PropertyResponse> {
+    return this.http.put<PropertyResponse>(`${this.baseUrl}/${id}`, request);
+  }
+
   listByOrganization(organizationId: string): Observable<PropertyResponse[]> {
     const params = new HttpParams().set('organizationId', organizationId);
     return this.http.get<PropertyResponse[]>(this.baseUrl, { params });
@@ -34,6 +40,10 @@ export class PropertyService {
 
   getUnit(propertyId: string, unitId: string): Observable<UnitResponse> {
     return this.http.get<UnitResponse>(`${this.baseUrl}/${propertyId}/units/${unitId}`);
+  }
+
+  updateUnit(propertyId: string, unitId: string, request: UpdateUnitRequest): Observable<UnitResponse> {
+    return this.http.put<UnitResponse>(`${this.baseUrl}/${propertyId}/units/${unitId}`, request);
   }
 
   listUnits(propertyId: string): Observable<UnitResponse[]> {

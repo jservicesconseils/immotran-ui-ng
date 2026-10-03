@@ -9,22 +9,24 @@
       <h1>Appartement {{ unit.label }}</h1>
       <p-tag [severity]="unitStatusSeverity[unit.status]" [value]="unitStatusLabels[unit.status]" />
       <div class="unit-header-actions">
-        <p-button label="Modifier" severity="secondary" [outlined]="true" />
-        <p-button label="Mettre à jour" />
+        <p-button label="Modifier" icon="pi pi-pencil" severity="secondary" [outlined]="true" (onClick)="editUnit()" />
       </div>
     </div>
-    <div class="unit-header-badges">
+    <div class="unit-kpi-strip">
       @if (unit.bedrooms != null) {
-        <span class="unit-badge">{{ unit.bedrooms + 1 }} ½</span>
-      }
-      @if (unit.areaSquareMeters) {
-        <span class="unit-badge">{{ unit.areaSquareMeters }} m²</span>
-      }
-      @if (unit.bedrooms != null) {
-        <span class="unit-badge">{{ unit.bedrooms }} chambres</span>
+        <div class="unit-kpi-item"><div class="unit-kpi-value">{{ unit.bedrooms }}</div><div class="unit-kpi-label">Chambre{{ unit.bedrooms === 1 ? '' : 's' }}</div></div>
       }
       @if (unit.bathrooms != null) {
-        <span class="unit-badge">{{ unit.bathrooms }} salle de bain</span>
+        <div class="unit-kpi-item"><div class="unit-kpi-value">{{ unit.bathrooms }}</div><div class="unit-kpi-label">Salle{{ unit.bathrooms === 1 ? '' : 's' }} de bain</div></div>
+      }
+      @if (unit.areaSquareMeters) {
+        <div class="unit-kpi-item"><div class="unit-kpi-value">{{ unit.areaSquareMeters }} m²</div><div class="unit-kpi-label">Surface</div></div>
+      }
+      @if (unit.listedRent) {
+        <div class="unit-kpi-item"><div class="unit-kpi-value">{{ unit.listedRent | currency: 'CAD' : 'symbol-narrow' : '1.0-0' }}</div><div class="unit-kpi-label">Loyer mensuel</div></div>
+      }
+      @if (unit.listedSecurityDeposit) {
+        <div class="unit-kpi-item"><div class="unit-kpi-value">{{ unit.listedSecurityDeposit | currency: 'CAD' : 'symbol-narrow' : '1.0-0' }}</div><div class="unit-kpi-label">Dépôt de garantie</div></div>
       }
     </div>
   </div>

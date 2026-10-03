@@ -1,10 +1,9 @@
-import { CurrencyPipe, DatePipe, Location } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { CurrencyPipe, DatePipe, Location, NgClass } from '@angular/common';
+import { Component, computed, inject, signal } from '@angular/core';
+import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService, PrimeTemplate } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
-import { CheckboxModule } from 'primeng/checkbox';
 import { DatePickerModule } from 'primeng/datepicker';
 import { DialogModule } from 'primeng/dialog';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -14,13 +13,17 @@ import { TableModule } from 'primeng/table';
 import { TabsModule } from 'primeng/tabs';
 import { TagModule } from 'primeng/tag';
 import { TextareaModule } from 'primeng/textarea';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 import { AuthService } from '../../../core/auth/auth.service';
 import { DocumentService } from '../../../core/services/document.service';
 import { FinanceService } from '../../../core/services/finance.service';
+import { LeaseService } from '../../../core/services/lease.service';
 import { MaintenanceService } from '../../../core/services/maintenance.service';
 import { OwnerService } from '../../../core/services/owner.service';
 import { PropertyService } from '../../../core/services/property.service';
+import { TenantService } from '../../../core/services/tenant.service';
 
 import { DocumentResponse, DOCUMENT_TYPE_LABELS, DocumentType } from '../../../core/models/document.model';
 import {
@@ -29,6 +32,7 @@ import {
   TransactionResponse,
   TransactionType,
 } from '../../../core/models/finance.model';
+import { LeaseResponse } from '../../../core/models/lease.model';
 import {
   MAINTENANCE_PRIORITY_LABELS,
   MAINTENANCE_PRIORITY_SEVERITY,
@@ -37,7 +41,7 @@ import {
   MaintenancePriority,
   MaintenanceRequestResponse,
 } from '../../../core/models/maintenance.model';
-import { OwnerResponse, OwnerType, PropertyOwnerResponse } from '../../../core/models/owner.model';
+import { OwnerResponse, PropertyOwnerResponse } from '../../../core/models/owner.model';
 import {
   BUILDING_STATUS_LABELS,
   PROPERTY_STATUS_LABELS,
@@ -48,16 +52,26 @@ import {
   UNIT_STATUS_SEVERITY,
   UNIT_TYPE_LABELS,
   UnitResponse,
+  UnitStatus,
   UnitType,
 } from '../../../core/models/property.model';
+import { TenantResponse } from '../../../core/models/tenant.model';
+
+interface HistoryEntry {
+  date: string;
+  icon: string;
+  iconClass: string;
+  title: string;
+  detail: string;
+}
 
 @Component({
   selector: 'app-property-detail',
   standalone: true,
   imports: [
     ReactiveFormsModule,
+    FormsModule,
     ButtonModule,
-    CheckboxModule,
     DatePickerModule,
     DialogModule,
     InputNumberModule,
@@ -69,6 +83,7 @@ import {
     TextareaModule,
     CurrencyPipe,
     DatePipe,
+    NgClass,
     PrimeTemplate,
   ],
   templateUrl: './property-detail.component.html',
@@ -85,6 +100,8 @@ export class PropertyDetailComponent {
   private readonly financeService = inject(FinanceService);
   private readonly maintenanceService = inject(MaintenanceService);
   private readonly documentService = inject(DocumentService);
+  private readonly leaseService = inject(LeaseService);
+  private readonly tenantService = inject(TenantService);
   private readonly messageService = inject(MessageService);
 
   readonly propertyId = this.route.snapshot.paramMap.get('propertyId')!;
@@ -98,6 +115,8 @@ export class PropertyDetailComponent {
   readonly unitStatusLabels = UNIT_STATUS_LABELS;
   readonly unitStatusSeverity = UNIT_STATUS_SEVERITY;
   readonly unitTypeLabels = UNIT_TYPE_LABELS;
+  readonly unitTypeOptions = Object.entries(UNIT_TYPE_LABELS).map(([value, label]) => ({ label, value }));
+  readonly unitStatusOptions = Object.entries(UNIT_STATUS_LABELS).map(([value, label]) => ({ label, value }));
   readonly buildingStatusLabels = BUILDING_STATUS_LABELS;
   readonly maintenancePriorityLabels = MAINTENANCE_PRIORITY_LABELS;
   readonly maintenancePrioritySeverity = MAINTENANCE_PRIORITY_SEVERITY;
@@ -106,22 +125,68 @@ export class PropertyDetailComponent {
   readonly transactionCategoryLabels = TRANSACTION_CATEGORY_LABELS;
   readonly documentTypeLabels = DOCUMENT_TYPE_LABELS;
 
+  // --- Vue d'ensemble : KPI --------------------------------------------
+  readonly occupancyRate = computed(() => {
+    const units = this.units();
+    if (!units.length) {
+      return null;
+    }
+    const occupied = units.filter((u) => u.status === 'OCCUPEE').length;
+    return Math.round((occupied / units.length) * 100);
+  });
+
+  readonly monthlyRevenue = computed(() =>
+    this.units()
+      .filter((u) => u.status === 'OCCUPEE')
+      .reduce((sum, u) => sum + (u.listedRent ?? 0), 0)
+  );
+
   // --- Units -------------------------------------------------------
   readonly units = signal<UnitResponse[]>([]);
-  readonly unitDialogVisible = signal(false);
-  readonly unitSubmitting = signal(false);
-  readonly unitTypeOptions = Object.entries(UNIT_TYPE_LABELS).map(([value, label]) => ({ label, value }));
-  readonly unitForm = this.fb.nonNullable.group({
-    label: ['', [Validators.required, Validators.maxLength(50)]],
-    principal: [false],
-    floor: this.fb.control<number | null>(null),
-    areaSquareMeters: this.fb.control<number | null>(null),
-    bedrooms: this.fb.control<number | null>(null),
-    bathrooms: this.fb.control<number | null>(null),
-    type: this.fb.control<UnitType | null>(null),
-    description: this.fb.control<string | null>(null, Validators.maxLength(2000)),
-    listedRent: this.fb.control<number | null>(null),
+  readonly unitLeasesByUnitId = signal<Record<string, LeaseResponse | null>>({});
+  readonly tenants = signal<TenantResponse[]>([]);
+
+  readonly unitSearchTerm = signal('');
+  readonly unitFloorFilter = signal<number | null>(null);
+  readonly unitStatusFilter = signal<UnitStatus | null>(null);
+  readonly unitTypeFilter = signal<UnitType | null>(null);
+
+  readonly floorOptions = computed(() => {
+    const floors = new Set(this.units().map((u) => u.floor).filter((f): f is number => f != null));
+    return [...floors].sort((a, b) => a - b).map((floor) => ({ label: `Étage ${floor}`, value: floor }));
   });
+
+  readonly availableUnitsCount = computed(() => this.units().filter((u) => u.status === 'DISPONIBLE').length);
+  readonly occupiedUnitsCount = computed(() => this.units().filter((u) => u.status === 'OCCUPEE').length);
+  readonly renovationUnitsCount = computed(() => this.units().filter((u) => u.status === 'EN_MAINTENANCE').length);
+
+  readonly filteredUnits = computed(() => {
+    const term = this.unitSearchTerm().trim().toLowerCase();
+    const floor = this.unitFloorFilter();
+    const status = this.unitStatusFilter();
+    const type = this.unitTypeFilter();
+    return this.units().filter((unit) => {
+      const matchesTerm = !term || unit.label.toLowerCase().includes(term);
+      const matchesFloor = floor == null || unit.floor === floor;
+      const matchesStatus = !status || unit.status === status;
+      const matchesType = !type || unit.type === type;
+      return matchesTerm && matchesFloor && matchesStatus && matchesType;
+    });
+  });
+
+  // Arrow function (pas une methode de classe) : utilisee comme callback
+  // direct au template (unitTenantName(unit.id)).
+  readonly unitTenantName = (unitId: string): string | null => {
+    const lease = this.unitLeasesByUnitId()[unitId];
+    if (!lease || !lease.tenantIds.length) {
+      return null;
+    }
+    const names = lease.tenantIds.map((id) => {
+      const tenant = this.tenants().find((t) => t.id === id);
+      return tenant ? `${tenant.firstName} ${tenant.lastName}` : null;
+    }).filter((n): n is string => !!n);
+    return names.length ? names.join(', ') : null;
+  };
 
   // --- Owners --------------------------------------------------------
   readonly propertyOwners = signal<PropertyOwnerResponse[]>([]);
@@ -132,6 +197,15 @@ export class PropertyDetailComponent {
     ownerId: this.fb.nonNullable.control<string | null>(null, Validators.required),
     sharePercentage: this.fb.nonNullable.control(100, [Validators.required, Validators.min(0), Validators.max(100)]),
   });
+
+  readonly ownerRows = computed(() =>
+    this.propertyOwners().map((po) => ({
+      ...po,
+      owner: this.availableOwners().find((o) => o.id === po.ownerId) ?? null,
+    }))
+  );
+
+  readonly managerName = computed(() => this.auth.session()?.organizationName ?? '—');
 
   // --- Transactions ----------------------------------------------
   readonly transactions = signal<TransactionResponse[]>([]);
@@ -166,7 +240,7 @@ export class PropertyDetailComponent {
     cost: this.fb.control<number | null>(null),
   });
 
-  // --- Documents -------------------------------------------------
+  // --- Documents / Photos -----------------------------------------
   readonly documents = signal<DocumentResponse[]>([]);
   readonly documentDialogVisible = signal(false);
   readonly documentSubmitting = signal(false);
@@ -176,15 +250,50 @@ export class PropertyDetailComponent {
     fileName: ['', [Validators.required, Validators.maxLength(255)]],
   });
 
+  // --- Historique ----------------------------------------------------
+  readonly historyEntries = computed<HistoryEntry[]>(() => {
+    const entries: HistoryEntry[] = [];
+    const property = this.property();
+    if (property) {
+      entries.push({
+        date: property.createdAt,
+        icon: 'pi-building',
+        iconClass: 'icon-box-primary',
+        title: 'Propriété créée',
+        detail: `${property.street}, ${property.city}`,
+      });
+    }
+    for (const tx of this.transactions()) {
+      entries.push({
+        date: tx.transactionDate,
+        icon: tx.type === 'REVENU' ? 'pi-arrow-up-right' : 'pi-arrow-down-right',
+        iconClass: tx.type === 'REVENU' ? 'icon-box-success' : 'icon-box-danger',
+        title: tx.type === 'REVENU' ? 'Revenu enregistré' : 'Dépense enregistrée',
+        detail: `${this.transactionCategoryLabels[tx.category]} · ${tx.amount}$`,
+      });
+    }
+    for (const request of this.maintenanceRequests()) {
+      entries.push({
+        date: request.createdAt,
+        icon: 'pi-wrench',
+        iconClass: 'icon-box-warning',
+        title: 'Demande de maintenance',
+        detail: request.description,
+      });
+    }
+    return entries.sort((a, b) => (a.date < b.date ? 1 : -1));
+  });
+
   constructor() {
     this.loadProperty();
   }
 
-  // Pas de formulaire d'edition de propriete dans ce MVP -- le bouton
-  // reste visible (voir la maquette) mais signale honnetement l'absence
-  // de fonctionnalite plutot que de rester silencieusement inerte.
   editProperty(): void {
-    this.messageService.add({ severity: 'info', summary: 'Bientôt disponible', detail: "L'édition d'une propriété sera ajoutée prochainement." });
+    this.router.navigate(['/properties', this.propertyId, 'edit']);
+  }
+
+  moreActions(): void {
+    this.messageService.add({ severity: 'info', summary: 'Bientôt disponible' });
   }
 
   goBack(): void {
@@ -212,33 +321,40 @@ export class PropertyDetailComponent {
 
   // --- Units -------------------------------------------------------
   loadUnits(): void {
-    this.propertyService.listUnits(this.propertyId).subscribe((units) => this.units.set(units));
+    this.propertyService.listUnits(this.propertyId).subscribe((units) => {
+      this.units.set(units);
+      this.loadUnitLeases(units);
+    });
+
+    const organizationId = this.auth.session()?.organizationId;
+    if (organizationId) {
+      this.tenantService.listByOrganization(organizationId).subscribe((tenants) => this.tenants.set(tenants));
+    }
   }
 
-  openUnitDialog(): void {
-    this.unitForm.reset({ principal: false });
-    this.unitDialogVisible.set(true);
-  }
-
-  submitUnit(): void {
-    if (this.unitForm.invalid) {
-      this.unitForm.markAllAsTouched();
+  // Pas d'endpoint "locataire actuel par unite" -- on va chercher les baux
+  // de chaque unite (acceptable pour un portefeuille de cette taille) pour
+  // afficher la colonne Locataire du tableau des appartements.
+  private loadUnitLeases(units: UnitResponse[]): void {
+    if (!units.length) {
+      this.unitLeasesByUnitId.set({});
       return;
     }
-    this.unitSubmitting.set(true);
-    const value = this.unitForm.getRawValue();
-    this.propertyService.createUnit(this.propertyId, value).subscribe({
-      next: () => {
-        this.unitSubmitting.set(false);
-        this.unitDialogVisible.set(false);
-        this.messageService.add({ severity: 'success', summary: 'Unité ajoutée' });
-        this.loadUnits();
-      },
-      error: () => {
-        this.unitSubmitting.set(false);
-        this.messageService.add({ severity: 'error', summary: 'Erreur', detail: "L'ajout de l'unité a échoué." });
-      },
+    forkJoin(
+      units.map((unit) =>
+        this.leaseService.list(this.propertyId, unit.id).pipe(catchError(() => of<LeaseResponse[]>([])))
+      )
+    ).subscribe((leasesByUnit) => {
+      const map: Record<string, LeaseResponse | null> = {};
+      units.forEach((unit, index) => {
+        map[unit.id] = leasesByUnit[index].find((lease) => lease.status === 'ACTIVE') ?? null;
+      });
+      this.unitLeasesByUnitId.set(map);
     });
+  }
+
+  openNewUnit(): void {
+    this.router.navigate(['/properties', this.propertyId, 'units', 'new']);
   }
 
   openUnit(unit: UnitResponse): void {
@@ -279,10 +395,6 @@ export class PropertyDetailComponent {
         this.messageService.add({ severity: 'error', summary: 'Erreur', detail });
       },
     });
-  }
-
-  ownerTypeLabel(type: OwnerType): string {
-    return type === 'PARTICULIER' ? 'Particulier' : 'Société';
   }
 
   // --- Transactions ----------------------------------------------
@@ -428,5 +540,9 @@ export class PropertyDetailComponent {
           this.messageService.add({ severity: 'error', summary: 'Erreur', detail: "L'enregistrement a échoué." });
         },
       });
+  }
+
+  addPhotos(): void {
+    this.messageService.add({ severity: 'info', summary: 'Bientôt disponible', detail: "L'envoi de photos sera ajouté prochainement." });
   }
 }

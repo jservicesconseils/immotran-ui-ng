@@ -1,0 +1,170 @@
+@if (!loading()) {
+  <div class="page-header">
+    <div>
+      <h1>{{ mode() === 'edit' ? 'Modifier la propriété' : 'Nouvelle propriété' }}</h1>
+      <p>
+        @if (mode() === 'edit') {
+          Mettez à jour les informations de {{ form.controls.street.value }}.
+        } @else {
+          Ajoutez un immeuble, une maison ou tout autre type de propriété.
+        }
+      </p>
+    </div>
+  </div>
+
+  <div class="surface-card form-card">
+    <div class="stepper">
+      @for (title of stepTitles; track title; let i = $index) {
+        <div class="stepper-item" [class.active]="i + 1 <= currentStep()" (click)="goToStep(i + 1)">
+          <div class="stepper-circle">{{ i + 1 }}</div>
+          <div class="stepper-label" [class.current]="i + 1 === currentStep()">{{ title }}</div>
+        </div>
+        @if (i < stepTitles.length - 1) {
+          <div class="stepper-line" [class.active]="i + 1 < currentStep()"></div>
+        }
+      }
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <!-- ETAPE 1 : Informations generales -->
+      @if (currentStep() === 1) {
+        <h2>Informations générales</h2>
+        <div class="field-row cols-2">
+          <div class="field">
+            <label for="type">Type de propriété *</label>
+            <p-select inputId="type" formControlName="type" [options]="propertyTypeOptions" optionLabel="label" optionValue="value" placeholder="Sélectionner un type" styleClass="w-full" />
+          </div>
+          <div class="field">
+            <label for="name">Nom de la propriété</label>
+            <input pInputText id="name" formControlName="name" class="w-full" placeholder="Ex : Le Domaine du Parc" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="street">Rue *</label>
+          <input pInputText id="street" formControlName="street" class="w-full" placeholder="123 rue des Lilas" />
+        </div>
+        <div class="field-row cols-3">
+          <div class="field">
+            <label for="city">Ville *</label>
+            <input pInputText id="city" formControlName="city" class="w-full" placeholder="Montréal" />
+          </div>
+          <div class="field">
+            <label for="province">Province *</label>
+            <p-select inputId="province" formControlName="province" [options]="provinceOptions" optionLabel="label" optionValue="value" placeholder="Province" styleClass="w-full" />
+          </div>
+          <div class="field">
+            <label for="postalCode">Code postal *</label>
+            <input pInputText id="postalCode" formControlName="postalCode" class="w-full" placeholder="H1A 1A1" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="description">Description</label>
+          <textarea pTextarea id="description" formControlName="description" class="w-full" rows="3" placeholder="Décrivez la propriété (emplacement, commodités, particularités, etc.)" maxlength="1000"></textarea>
+        </div>
+        <div class="field-checkbox">
+          <p-checkbox formControlName="active" [binary]="true" inputId="active" />
+          <label for="active">Propriété active</label>
+        </div>
+      }
+
+      <!-- ETAPE 2 : Caracteristiques -->
+      @if (currentStep() === 2) {
+        <h2>Caractéristiques</h2>
+        <div class="field-row cols-2">
+          <div class="field">
+            <label for="buildingStatus">État du bâtiment</label>
+            <p-select inputId="buildingStatus" formControlName="buildingStatus" [options]="buildingStatusOptions" optionLabel="label" optionValue="value" placeholder="Sélectionner" styleClass="w-full" [showClear]="true" />
+          </div>
+          <div class="field">
+            <label for="yearBuilt">Année de construction</label>
+            <p-inputnumber inputId="yearBuilt" formControlName="yearBuilt" [useGrouping]="false" styleClass="w-full" />
+          </div>
+        </div>
+        <div class="field-row cols-2">
+          <div class="field">
+            <label for="floorCount">Nombre d'étages</label>
+            <p-inputnumber inputId="floorCount" formControlName="floorCount" [min]="0" styleClass="w-full" />
+          </div>
+          <div class="field">
+            <label for="totalSurfaceArea">Superficie totale (m²)</label>
+            <p-inputnumber inputId="totalSurfaceArea" formControlName="totalSurfaceArea" [min]="0" styleClass="w-full" />
+          </div>
+        </div>
+        <div class="field-row cols-2">
+          <div class="field">
+            <label for="cadastreNumber">Numéro de cadastre</label>
+            <input pInputText id="cadastreNumber" formControlName="cadastreNumber" class="w-full" placeholder="1 234 567" />
+          </div>
+          <div class="field">
+            <label for="taxId">Numéro fiscal</label>
+            <input pInputText id="taxId" formControlName="taxId" class="w-full" />
+          </div>
+        </div>
+      }
+
+      <!-- ETAPE 3 : Proprietaire -->
+      @if (currentStep() === 3) {
+        <h2>Propriétaire</h2>
+        @if (currentOwners().length) {
+          <p class="step-hint">Propriétaires déjà associés :</p>
+          <ul class="owner-list">
+            @for (po of currentOwners(); track po.id) {
+              <li><span class="icon-box icon-box-sm icon-box-warning"><i class="pi pi-id-card"></i></span> {{ po.ownerName }} <span class="owner-share">{{ po.sharePercentage }}%</span></li>
+            }
+          </ul>
+        }
+        <div class="field-row cols-2">
+          <div class="field">
+            <label for="ownerId">Associer un propriétaire (optionnel)</label>
+            <p-select inputId="ownerId" formControlName="ownerId" [options]="availableOwners()" optionLabel="name" optionValue="id" placeholder="Sélectionner un propriétaire" styleClass="w-full" [showClear]="true" />
+          </div>
+          <div class="field">
+            <label for="sharePercentage">Part de propriété (%)</label>
+            <p-inputnumber inputId="sharePercentage" formControlName="sharePercentage" suffix=" %" [min]="0" [max]="100" styleClass="w-full" />
+          </div>
+        </div>
+      }
+
+      <!-- ETAPE 4 : Finances -->
+      @if (currentStep() === 4) {
+        <h2>Finances</h2>
+        <div class="field">
+          <label for="estimatedValue">Valeur estimée ($)</label>
+          <p-inputnumber inputId="estimatedValue" formControlName="estimatedValue" mode="currency" currency="CAD" locale="fr-CA" styleClass="w-full" />
+        </div>
+      }
+
+      <!-- ETAPE 5 : Photos et documents -->
+      @if (currentStep() === 5) {
+        <h2>Photos et documents</h2>
+        <div class="photo-grid">
+          <button type="button" class="photo-add" (click)="addPhotos()">
+            <i class="pi pi-camera"></i>
+            <span>Ajouter des photos<br />JPG, PNG (max 10 Mo)</span>
+          </button>
+        </div>
+        @if (documents().length) {
+          <p class="step-hint">Documents joints :</p>
+          <ul class="doc-list">
+            @for (doc of documents(); track doc.id) {
+              <li><span class="icon-box icon-box-sm icon-box-neutral"><i class="pi pi-file"></i></span> {{ doc.fileName }}</li>
+            }
+          </ul>
+        }
+      }
+
+      <div class="form-actions">
+        @if (currentStep() === 1) {
+          <p-button label="Annuler" severity="secondary" [outlined]="true" type="button" (onClick)="cancel()" />
+        } @else {
+          <p-button label="Précédent" severity="secondary" [outlined]="true" type="button" (onClick)="previousStep()" />
+        }
+        @if (currentStep() < stepTitles.length) {
+          <p-button label="Suivant" icon="pi pi-arrow-right" iconPos="right" type="button" (onClick)="nextStep()" />
+        } @else {
+          <p-button label="Enregistrer" icon="pi pi-check" type="submit" [loading]="submitting()" />
+        }
+      </div>
+    </form>
+  </div>
+}

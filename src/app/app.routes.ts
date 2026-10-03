@@ -76,9 +76,25 @@ export const routes: Routes = [
         loadComponent: () => import('./features/properties/property-list/property-list.component').then((m) => m.PropertyListComponent),
       },
       {
+        path: 'properties/new',
+        loadComponent: () => import('./features/properties/property-form/property-form.component').then((m) => m.PropertyFormComponent),
+      },
+      {
+        path: 'properties/:propertyId/edit',
+        loadComponent: () => import('./features/properties/property-form/property-form.component').then((m) => m.PropertyFormComponent),
+      },
+      {
         path: 'properties/:propertyId',
         loadComponent: () =>
           import('./features/properties/property-detail/property-detail.component').then((m) => m.PropertyDetailComponent),
+      },
+      {
+        path: 'properties/:propertyId/units/new',
+        loadComponent: () => import('./features/properties/unit-form/unit-form.component').then((m) => m.UnitFormComponent),
+      },
+      {
+        path: 'properties/:propertyId/units/:unitId/edit',
+        loadComponent: () => import('./features/properties/unit-form/unit-form.component').then((m) => m.UnitFormComponent),
       },
       {
         path: 'properties/:propertyId/units/:unitId',

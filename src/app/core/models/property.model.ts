@@ -19,6 +19,7 @@ export interface PropertyResponse {
   id: string;
   organizationId: string;
   type: PropertyType;
+  name: string | null;
   street: string;
   city: string;
   province: string;
@@ -38,6 +39,24 @@ export interface PropertyResponse {
 export interface CreatePropertyRequest {
   organizationId: string;
   type: PropertyType;
+  name: string | null;
+  street: string;
+  city: string;
+  province: string;
+  postalCode: string;
+  cadastreNumber: string | null;
+  taxId: string | null;
+  buildingStatus: BuildingStatus | null;
+  yearBuilt: number | null;
+  floorCount: number | null;
+  totalSurfaceArea: number | null;
+  estimatedValue: number | null;
+  description: string | null;
+}
+
+export interface UpdatePropertyRequest {
+  type: PropertyType;
+  name: string | null;
   street: string;
   city: string;
   province: string;
@@ -64,6 +83,7 @@ export interface UnitResponse {
   type: UnitType | null;
   description: string | null;
   listedRent: number | null;
+  listedSecurityDeposit: number | null;
   status: UnitStatus;
   createdAt: string;
 }
@@ -78,6 +98,20 @@ export interface CreateUnitRequest {
   type: UnitType | null;
   description: string | null;
   listedRent: number | null;
+  listedSecurityDeposit: number | null;
+  status: UnitStatus | null;
+}
+
+export interface UpdateUnitRequest {
+  label: string;
+  floor: number | null;
+  areaSquareMeters: number | null;
+  bedrooms: number | null;
+  bathrooms: number | null;
+  type: UnitType | null;
+  description: string | null;
+  listedRent: number | null;
+  listedSecurityDeposit: number | null;
 }
 
 /**
@@ -112,8 +146,8 @@ export const PROPERTY_TYPE_LABELS: Record<string, string> = {
 
 export const PROPERTY_STATUS_LABELS: Record<string, string> = {
   VACANTE: 'Vacante',
-  OCCUPEE: 'Occupée',
-  EN_MAINTENANCE: 'En maintenance',
+  OCCUPEE: 'Actif',
+  EN_MAINTENANCE: 'En rénovation',
   HORS_MARCHE: 'Hors marché',
   ARCHIVEE: 'Archivée',
 };
@@ -121,15 +155,15 @@ export const PROPERTY_STATUS_LABELS: Record<string, string> = {
 export const PROPERTY_STATUS_SEVERITY: Record<string, 'success' | 'warn' | 'danger' | 'secondary' | 'info'> = {
   VACANTE: 'warn',
   OCCUPEE: 'success',
-  EN_MAINTENANCE: 'info',
+  EN_MAINTENANCE: 'warn',
   HORS_MARCHE: 'secondary',
   ARCHIVEE: 'secondary',
 };
 
 export const UNIT_STATUS_LABELS: Record<string, string> = {
   DISPONIBLE: 'Disponible',
-  OCCUPEE: 'Occupée',
-  EN_MAINTENANCE: 'En maintenance',
+  OCCUPEE: 'Occupé',
+  EN_MAINTENANCE: 'En rénovation',
 };
 
 export const UNIT_STATUS_SEVERITY: Record<string, 'success' | 'warn' | 'info'> = {

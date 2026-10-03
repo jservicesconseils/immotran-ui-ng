@@ -1,34 +1,63 @@
 @if (property(); as property) {
   <div class="detail-top">
     <p-button icon="pi pi-arrow-left" [text]="true" [rounded]="true" severity="secondary" (onClick)="goBack()" />
-    <span class="detail-eyebrow">Détails d'un immeuble</span>
+    <span class="detail-eyebrow">Détails d'une propriété</span>
   </div>
 
   <div class="building-header surface-card">
-    <div class="building-photo"><i class="pi pi-building"></i></div>
-    <div class="building-header-info">
-      <h1>{{ property.street }}</h1>
-      <p>{{ property.city }}, {{ property.province }} {{ property.postalCode }}</p>
+    <div class="building-header-top">
+      <div class="building-photo"><i class="pi pi-building"></i></div>
+      <div class="building-header-info">
+        <h1>{{ property.name || property.street }}</h1>
+        <p>{{ property.street }}, {{ property.city }} {{ property.postalCode }}</p>
+        <div class="building-badges">
+          <p-tag severity="info" [value]="typeLabels[property.type]" />
+          <p-tag [severity]="statusSeverity[property.status]" [value]="statusLabels[property.status]" />
+        </div>
+      </div>
+      <div class="building-header-actions">
+        <p-button label="Modifier" icon="pi pi-pencil" severity="secondary" [outlined]="true" (onClick)="editProperty()" />
+        <p-button icon="pi pi-ellipsis-v" [text]="true" severity="secondary" (onClick)="moreActions()" />
+      </div>
     </div>
-    <p-tag [severity]="statusSeverity[property.status]" [value]="statusLabels[property.status]" />
-    <p-button label="Modifier" severity="secondary" [outlined]="true" (onClick)="editProperty()" />
+
+    <div class="building-kpi-strip">
+      <div class="building-kpi-item">
+        <span class="icon-box icon-box-sm icon-box-primary"><i class="pi pi-th-large"></i></span>
+        <div><div class="building-kpi-value">{{ units().length }}</div><div class="building-kpi-label">Appartements</div></div>
+      </div>
+      <div class="building-kpi-item">
+        <span class="icon-box icon-box-sm icon-box-success"><i class="pi pi-chart-pie"></i></span>
+        <div><div class="building-kpi-value">{{ occupancyRate() !== null ? occupancyRate() + '%' : '—' }}</div><div class="building-kpi-label">Taux d'occupation</div></div>
+      </div>
+      <div class="building-kpi-item">
+        <span class="icon-box icon-box-sm icon-box-warning"><i class="pi pi-wallet"></i></span>
+        <div><div class="building-kpi-value">{{ monthlyRevenue() | currency: 'CAD' : 'symbol-narrow' : '1.0-0' }}</div><div class="building-kpi-label">Revenu mensuel</div></div>
+      </div>
+      @if (property.floorCount) {
+        <div class="building-kpi-item">
+          <span class="icon-box icon-box-sm icon-box-neutral"><i class="pi pi-sort"></i></span>
+          <div><div class="building-kpi-value">{{ property.floorCount }}</div><div class="building-kpi-label">Étages</div></div>
+        </div>
+      }
+    </div>
   </div>
 
   <div class="surface-card">
-    <p-tabs value="informations">
+    <p-tabs value="overview">
       <p-tablist>
-        <p-tab value="informations"><i class="pi pi-info-circle"></i> Informations</p-tab>
-        <p-tab value="units"><i class="pi pi-th-large"></i> Appartements ({{ units().length }})</p-tab>
-        <p-tab value="documents"><i class="pi pi-file"></i> Documents</p-tab>
-        <p-tab value="photos"><i class="pi pi-images"></i> Photos</p-tab>
+        <p-tab value="overview"><i class="pi pi-th-large"></i> Vue d'ensemble</p-tab>
+        <p-tab value="units"><i class="pi pi-home"></i> Appartements ({{ units().length }})</p-tab>
         <p-tab value="owners"><i class="pi pi-id-card"></i> Propriétaires</p-tab>
         <p-tab value="finance"><i class="pi pi-wallet"></i> Finances</p-tab>
         <p-tab value="maintenance"><i class="pi pi-wrench"></i> Maintenance</p-tab>
+        <p-tab value="documents"><i class="pi pi-file"></i> Documents</p-tab>
+        <p-tab value="history"><i class="pi pi-history"></i> Historique</p-tab>
       </p-tablist>
 
       <p-tabpanels>
-        <!-- INFORMATIONS -->
-        <p-tabpanel value="informations">
+        <!-- VUE D'ENSEMBLE -->
+        <p-tabpanel value="overview">
           <div class="informations-layout">
             <div class="informations-list">
               <h3>Informations générales</h3>
@@ -39,21 +68,15 @@
                 @if (property.floorCount) {
                   <div><dt>Nombre d'étages</dt><dd>{{ property.floorCount }}</dd></div>
                 }
-                <div><dt>Nombre total d'appartements</dt><dd>{{ units().length }}</dd></div>
+                <div><dt>Nombre d'appartements</dt><dd>{{ units().length }}</dd></div>
                 @if (property.totalSurfaceArea) {
                   <div><dt>Surface totale</dt><dd>{{ property.totalSurfaceArea }} m²</dd></div>
-                }
-                @if (property.cadastreNumber) {
-                  <div><dt>Numéro de cadastre</dt><dd>{{ property.cadastreNumber }}</dd></div>
-                }
-                @if (property.taxId) {
-                  <div><dt>Numéro fiscal</dt><dd>{{ property.taxId }}</dd></div>
                 }
                 @if (property.estimatedValue) {
                   <div><dt>Valeur estimée</dt><dd>{{ property.estimatedValue | currency: 'CAD' : 'symbol-narrow' : '1.0-0' }}</dd></div>
                 }
                 @if (property.buildingStatus) {
-                  <div><dt>Statut</dt><dd><p-tag severity="success" [value]="buildingStatusLabels[property.buildingStatus]" /></dd></div>
+                  <div><dt>Statut du bâtiment</dt><dd><p-tag severity="success" [value]="buildingStatusLabels[property.buildingStatus]" /></dd></div>
                 }
               </dl>
               @if (property.description) {
@@ -66,20 +89,39 @@
           </div>
         </p-tabpanel>
 
-        <!-- UNITS -->
+        <!-- APPARTEMENTS -->
         <p-tabpanel value="units">
-          <div class="tab-actions">
-            <p-button label="Ajouter une unité" icon="pi pi-plus" size="small" (onClick)="openUnitDialog()" />
+          <div class="units-kpi-strip">
+            <div class="units-kpi-item"><div class="units-kpi-value">{{ units().length }}</div><div class="units-kpi-label">Total</div></div>
+            <div class="units-kpi-item"><div class="units-kpi-value units-kpi-success">{{ occupiedUnitsCount() }}</div><div class="units-kpi-label">Occupés</div></div>
+            <div class="units-kpi-item"><div class="units-kpi-value units-kpi-warn">{{ availableUnitsCount() }}</div><div class="units-kpi-label">Disponibles</div></div>
+            <div class="units-kpi-item"><div class="units-kpi-value">{{ renovationUnitsCount() }}</div><div class="units-kpi-label">En rénovation</div></div>
+            <div class="units-kpi-item"><div class="units-kpi-value">{{ occupancyRate() !== null ? occupancyRate() + '%' : '—' }}</div><div class="units-kpi-label">Taux d'occupation</div></div>
           </div>
-          <p-table [value]="units()" dataKey="id" [rowHover]="true" responsiveLayout="scroll">
+
+          <div class="units-filters">
+            <span class="search-field">
+              <i class="pi pi-search"></i>
+              <input pInputText type="text" placeholder="Rechercher un appartement..." [ngModel]="unitSearchTerm()" (ngModelChange)="unitSearchTerm.set($event)" />
+            </span>
+            <p-select [options]="floorOptions()" optionLabel="label" optionValue="value" placeholder="Étage" [showClear]="true" [ngModel]="unitFloorFilter()" (ngModelChange)="unitFloorFilter.set($event)" />
+            <p-select [options]="unitStatusOptions" optionLabel="label" optionValue="value" placeholder="Statut" [showClear]="true" [ngModel]="unitStatusFilter()" (ngModelChange)="unitStatusFilter.set($event)" />
+            <p-select [options]="unitTypeOptions" optionLabel="label" optionValue="value" placeholder="Type" [showClear]="true" [ngModel]="unitTypeFilter()" (ngModelChange)="unitTypeFilter.set($event)" />
+            <p-button label="Ajouter un appartement" icon="pi pi-plus" size="small" (onClick)="openNewUnit()" />
+          </div>
+
+          <p-table [value]="filteredUnits()" dataKey="id" [rowHover]="true" responsiveLayout="scroll">
             <ng-template pTemplate="header">
               <tr>
-                <th>Unité</th>
-                <th>Type</th>
-                <th>Statut</th>
+                <th>#</th>
                 <th>Étage</th>
-                <th>Superficie</th>
-                <th>Ch. / SdB</th>
+                <th>Type</th>
+                <th>Chambres</th>
+                <th>Salles de bain</th>
+                <th>Surface</th>
+                <th>Loyer</th>
+                <th>Statut</th>
+                <th>Locataire</th>
                 <th></th>
               </tr>
             </ng-template>
@@ -93,47 +135,70 @@
                     }
                   </div>
                 </td>
-                <td>{{ unit.type ? unitTypeLabels[unit.type] : '—' }}</td>
-                <td><p-tag [severity]="unitStatusSeverity[unit.status]" [value]="unitStatusLabels[unit.status]" /></td>
                 <td>{{ unit.floor ?? '—' }}</td>
+                <td>{{ unit.type ? unitTypeLabels[unit.type] : '—' }}</td>
+                <td>{{ unit.bedrooms ?? '—' }}</td>
+                <td>{{ unit.bathrooms ?? '—' }}</td>
                 <td>{{ unit.areaSquareMeters ? unit.areaSquareMeters + ' m²' : '—' }}</td>
-                <td>{{ unit.bedrooms ?? '—' }} / {{ unit.bathrooms ?? '—' }}</td>
+                <td>{{ unit.listedRent ? (unit.listedRent | currency: 'CAD' : 'symbol-narrow' : '1.0-0') : '—' }}</td>
+                <td><p-tag [severity]="unitStatusSeverity[unit.status]" [value]="unitStatusLabels[unit.status]" /></td>
+                <td>{{ unitTenantName(unit.id) || '—' }}</td>
                 <td><p-button icon="pi pi-chevron-right" [text]="true" [rounded]="true" severity="secondary" /></td>
               </tr>
             </ng-template>
             <ng-template pTemplate="emptymessage">
-              <tr><td colspan="7" class="empty-state"><i class="pi pi-home"></i><p>Aucune unité pour le moment.</p></td></tr>
+              <tr><td colspan="10" class="empty-state"><i class="pi pi-home"></i><p>Aucun appartement pour le moment.</p></td></tr>
             </ng-template>
           </p-table>
         </p-tabpanel>
 
-        <!-- OWNERS -->
+        <!-- PROPRIETAIRES -->
         <p-tabpanel value="owners">
           <div class="tab-actions">
-            <p-button label="Associer un propriétaire" icon="pi pi-plus" size="small" (onClick)="openOwnerDialog()" />
+            <p-button label="Ajouter un propriétaire" icon="pi pi-plus" size="small" (onClick)="openOwnerDialog()" />
           </div>
-          <p-table [value]="propertyOwners()" dataKey="id" [rowHover]="true" responsiveLayout="scroll">
+          <p-table [value]="ownerRows()" dataKey="id" [rowHover]="true" responsiveLayout="scroll">
             <ng-template pTemplate="header">
               <tr>
-                <th>Propriétaire</th>
-                <th>Part</th>
+                <th>Nom</th>
+                <th>Type</th>
+                <th>Part (%)</th>
+                <th>Téléphone</th>
+                <th>Courriel</th>
+                <th></th>
               </tr>
             </ng-template>
-            <ng-template pTemplate="body" let-po>
+            <ng-template pTemplate="body" let-row>
               <tr>
                 <td>
                   <div class="entity-name">
                     <span class="icon-box icon-box-sm icon-box-warning"><i class="pi pi-id-card"></i></span>
-                    {{ po.ownerName }}
+                    {{ row.ownerName }}
                   </div>
                 </td>
-                <td>{{ po.sharePercentage }}%</td>
+                <td>{{ row.owner?.type === 'SOCIETE' ? 'Société' : 'Personne physique' }}</td>
+                <td>{{ row.sharePercentage }}%</td>
+                <td>{{ row.owner?.phone || '—' }}</td>
+                <td>{{ row.owner?.email || '—' }}</td>
+                <td><p-button icon="pi pi-trash" [text]="true" [rounded]="true" severity="danger" (onClick)="moreActions()" /></td>
               </tr>
             </ng-template>
             <ng-template pTemplate="emptymessage">
-              <tr><td colspan="2" class="empty-state"><i class="pi pi-id-card"></i><p>Aucun propriétaire associé.</p></td></tr>
+              <tr><td colspan="6" class="empty-state"><i class="pi pi-id-card"></i><p>Aucun propriétaire associé.</p></td></tr>
             </ng-template>
           </p-table>
+
+          <div class="manager-card">
+            <h3>Gestionnaire de l'immeuble</h3>
+            <div class="manager-row">
+              <span class="icon-box icon-box-neutral"><i class="pi pi-briefcase"></i></span>
+              <div class="manager-info">
+                <div class="manager-name">{{ managerName() }}</div>
+                <div class="manager-sub">Gestionnaire externe</div>
+              </div>
+              <p-button label="Modifier" severity="secondary" [outlined]="true" size="small" (onClick)="moreActions()" />
+            </div>
+          </div>
         </p-tabpanel>
 
         <!-- FINANCE -->
@@ -204,9 +269,18 @@
           </p-table>
         </p-tabpanel>
 
-        <!-- DOCUMENTS -->
+        <!-- DOCUMENTS (+ PHOTOS) -->
         <p-tabpanel value="documents">
+          <h3>Photos de la propriété</h3>
+          <div class="photo-grid">
+            <button type="button" class="photo-add" (click)="addPhotos()">
+              <i class="pi pi-camera"></i>
+              <span>Ajouter des photos<br />JPG, PNG (max 10 Mo)</span>
+            </button>
+          </div>
+
           <div class="tab-actions">
+            <h3 class="documents-title">Documents joints</h3>
             <p-button label="Ajouter un document" icon="pi pi-plus" size="small" (onClick)="openDocumentDialog()" />
           </div>
           <p-table [value]="documents()" dataKey="id" [rowHover]="true" responsiveLayout="scroll">
@@ -215,6 +289,7 @@
                 <th>Fichier</th>
                 <th>Type</th>
                 <th>Ajouté le</th>
+                <th></th>
               </tr>
             </ng-template>
             <ng-template pTemplate="body" let-doc>
@@ -227,77 +302,41 @@
                 </td>
                 <td>{{ documentTypeLabels[doc.type] }}</td>
                 <td>{{ doc.uploadedAt | date: 'd MMM yyyy' }}</td>
+                <td>
+                  <p-button icon="pi pi-download" [text]="true" [rounded]="true" severity="secondary" (onClick)="moreActions()" />
+                  <p-button icon="pi pi-trash" [text]="true" [rounded]="true" severity="danger" (onClick)="moreActions()" />
+                </td>
               </tr>
             </ng-template>
             <ng-template pTemplate="emptymessage">
-              <tr><td colspan="3" class="empty-state"><i class="pi pi-file"></i><p>Aucun document enregistré.</p></td></tr>
+              <tr><td colspan="4" class="empty-state"><i class="pi pi-file"></i><p>Aucun document enregistré.</p></td></tr>
             </ng-template>
           </p-table>
         </p-tabpanel>
 
-        <!-- PHOTOS -->
-        <p-tabpanel value="photos">
-          <div class="empty-state">
-            <i class="pi pi-images"></i>
-            <p>Aucune photo pour le moment.</p>
-          </div>
+        <!-- HISTORIQUE -->
+        <p-tabpanel value="history">
+          @if (historyEntries().length) {
+            <ul class="history-list">
+              @for (entry of historyEntries(); track $index) {
+                <li>
+                  <span class="icon-box icon-box-sm" [ngClass]="entry.iconClass"><i class="pi" [ngClass]="entry.icon"></i></span>
+                  <div>
+                    <div class="history-list-title">{{ entry.title }}</div>
+                    <div class="history-list-detail">{{ entry.detail }}</div>
+                  </div>
+                  <div class="history-list-date">{{ entry.date | date: 'd MMM yyyy' }}</div>
+                </li>
+              }
+            </ul>
+          } @else {
+            <div class="empty-state"><i class="pi pi-history"></i><p>Aucun historique pour cette propriété.</p></div>
+          }
         </p-tabpanel>
       </p-tabpanels>
     </p-tabs>
   </div>
 }
-
-<!-- Dialog: nouvelle unite -->
-<p-dialog header="Nouvelle unité" [modal]="true" [(visible)]="unitDialogVisible" [style]="{ width: '30rem' }">
-  <form [formGroup]="unitForm" (ngSubmit)="submitUnit()" class="entity-form">
-    <div class="field">
-      <label for="label">Étiquette</label>
-      <input pInputText id="label" formControlName="label" class="w-full" placeholder='ex. "304" ou "Principal"' />
-    </div>
-    <div class="field-checkbox">
-      <p-checkbox formControlName="principal" [binary]="true" inputId="principal" />
-      <label for="principal">Unité principale (maison individuelle)</label>
-    </div>
-    <div class="field-row">
-      <div class="field">
-        <label for="floor">Étage</label>
-        <p-inputnumber inputId="floor" formControlName="floor" styleClass="w-full" />
-      </div>
-      <div class="field">
-        <label for="area">Superficie (m²)</label>
-        <p-inputnumber inputId="area" formControlName="areaSquareMeters" styleClass="w-full" />
-      </div>
-    </div>
-    <div class="field-row">
-      <div class="field">
-        <label for="bedrooms">Chambres</label>
-        <p-inputnumber inputId="bedrooms" formControlName="bedrooms" styleClass="w-full" />
-      </div>
-      <div class="field">
-        <label for="bathrooms">Salles de bain</label>
-        <p-inputnumber inputId="bathrooms" formControlName="bathrooms" styleClass="w-full" />
-      </div>
-    </div>
-    <div class="field-row">
-      <div class="field">
-        <label for="unitType">Type de logement</label>
-        <p-select inputId="unitType" formControlName="type" [options]="unitTypeOptions" optionLabel="label" optionValue="value" placeholder="Sélectionner" styleClass="w-full" [showClear]="true" />
-      </div>
-      <div class="field">
-        <label for="listedRent">Loyer affiché ($/mois)</label>
-        <p-inputnumber inputId="listedRent" formControlName="listedRent" mode="currency" currency="CAD" locale="fr-CA" styleClass="w-full" />
-      </div>
-    </div>
-    <div class="field">
-      <label for="unitDescription">Description (optionnel)</label>
-      <textarea pTextarea id="unitDescription" formControlName="description" class="w-full" rows="3"></textarea>
-    </div>
-    <div class="dialog-actions">
-      <p-button label="Annuler" severity="secondary" [text]="true" (onClick)="unitDialogVisible.set(false)" type="button" />
-      <p-button label="Créer" icon="pi pi-check" type="submit" [loading]="unitSubmitting()" />
-    </div>
-  </form>
-</p-dialog>
 
 <!-- Dialog: associer proprietaire -->
 <p-dialog header="Associer un propriétaire" [modal]="true" [(visible)]="ownerDialogVisible" [style]="{ width: '28rem' }">

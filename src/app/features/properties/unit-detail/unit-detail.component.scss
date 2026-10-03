@@ -36,19 +36,30 @@
   gap: 0.6rem;
 }
 
-.unit-header-badges {
+.unit-kpi-strip {
   display: flex;
+  gap: 2rem;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  padding-top: 1rem;
+  margin-top: 0.25rem;
+  border-top: 1px solid var(--p-surface-100);
 }
 
-.unit-badge {
-  background: var(--p-surface-100);
-  color: var(--p-surface-700);
+.unit-kpi-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.unit-kpi-value {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--p-surface-900);
+}
+
+.unit-kpi-label {
   font-size: 0.75rem;
-  font-weight: 600;
-  padding: 0.25rem 0.65rem;
-  border-radius: 1rem;
+  color: var(--p-surface-500);
+  margin-top: 0.1rem;
 }
 
 .unit-gallery {

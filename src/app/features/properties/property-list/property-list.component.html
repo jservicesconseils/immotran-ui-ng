@@ -3,34 +3,78 @@
     <h1>Propriétés</h1>
     <p>Maisons, condos, duplex/triplex/quadruplex et immeubles multi-unités de votre portefeuille.</p>
   </div>
-  <p-button label="Nouvelle propriété" icon="pi pi-plus" (onClick)="openDialog()" />
+  <p-button label="Nouvelle propriété" icon="pi pi-plus" (onClick)="newProperty()" />
+</div>
+
+<div class="filters-bar surface-card">
+  <span class="p-input-icon-left search-field">
+    <i class="pi pi-search"></i>
+    <input
+      pInputText
+      type="text"
+      placeholder="Rechercher une propriété..."
+      class="w-full"
+      [ngModel]="searchTerm()"
+      (ngModelChange)="searchTerm.set($event)"
+    />
+  </span>
+  <p-select
+    [options]="typeOptions"
+    optionLabel="label"
+    optionValue="value"
+    placeholder="Type"
+    [showClear]="true"
+    [ngModel]="typeFilter()"
+    (ngModelChange)="typeFilter.set($event)"
+  />
+  <p-select
+    [options]="statusOptions"
+    optionLabel="label"
+    optionValue="value"
+    placeholder="Statut"
+    [showClear]="true"
+    [ngModel]="statusFilter()"
+    (ngModelChange)="statusFilter.set($event)"
+  />
+  <p-select
+    [options]="cityOptions()"
+    optionLabel="label"
+    optionValue="value"
+    placeholder="Ville"
+    [showClear]="true"
+    [ngModel]="cityFilter()"
+    (ngModelChange)="cityFilter.set($event)"
+  />
 </div>
 
 <div class="surface-card">
-  <p-table [value]="properties()" [loading]="loading()" dataKey="id" [rowHover]="true" responsiveLayout="scroll">
+  <p-table [value]="filteredRows()" [loading]="loading()" dataKey="property.id" [rowHover]="true" responsiveLayout="scroll">
     <ng-template pTemplate="header">
       <tr>
+        <th>Photo</th>
         <th>Adresse</th>
         <th>Type</th>
+        <th>Appartements</th>
+        <th>Taux d'occupation</th>
+        <th>Revenu mensuel</th>
         <th>Statut</th>
-        <th>Créée le</th>
-        <th style="width: 6rem"></th>
+        <th style="width: 4rem"></th>
       </tr>
     </ng-template>
-    <ng-template pTemplate="body" let-property>
-      <tr class="clickable-row" (click)="openProperty(property)">
+    <ng-template pTemplate="body" let-row>
+      <tr class="clickable-row" (click)="openProperty(row)">
         <td>
-          <div class="property-address">
-            <span class="icon-box icon-box-sm icon-box-primary"><i class="pi pi-building"></i></span>
-            <div>
-              <div class="property-street">{{ property.street }}</div>
-              <div class="property-city">{{ property.city }}, {{ property.province }} {{ property.postalCode }}</div>
-            </div>
-          </div>
+          <span class="icon-box icon-box-primary"><i class="pi pi-building"></i></span>
         </td>
-        <td>{{ typeLabels[property.type] }}</td>
-        <td><p-tag [severity]="statusSeverity[property.status]" [value]="statusLabels[property.status]" /></td>
-        <td>{{ property.createdAt | date: 'd MMM yyyy' }}</td>
+        <td>
+          <div class="property-street">{{ row.property.name || row.property.street }}</div>
+          <div class="property-city">{{ row.property.street }}, {{ row.property.city }} {{ row.property.postalCode }}</div>
+        </td>
+        <td>{{ typeLabels[row.property.type] }}</td>
+        <td>{{ row.unitCount || '—' }}</td>
+        <td>{{ row.occupancyRate !== null ? row.occupancyRate + '%' : '—' }}</td>
+        <td>{{ row.monthlyRevenue | currency: 'CAD' : 'symbol-narrow' : '1.0-0' }}</td>
+        <td><p-tag [severity]="statusSeverity[row.property.status]" [value]="statusLabels[row.property.status]" /></td>
         <td>
           <p-button icon="pi pi-chevron-right" [text]="true" [rounded]="true" severity="secondary" />
         </td>
@@ -38,7 +82,7 @@
     </ng-template>
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="5" class="empty-state">
+        <td colspan="8" class="empty-state">
           <i class="pi pi-building"></i>
           <p>Aucune propriété pour le moment. Ajoutez votre première propriété pour commencer.</p>
         </td>
@@ -46,108 +90,3 @@
     </ng-template>
   </p-table>
 </div>
-
-<p-dialog header="Nouvelle propriété" [modal]="true" [(visible)]="dialogVisible" [style]="{ width: '34rem' }">
-  <form [formGroup]="form" (ngSubmit)="submit()" class="property-form">
-    <div class="field">
-      <label for="type">Type de propriété</label>
-      <p-select
-        inputId="type"
-        formControlName="type"
-        [options]="propertyTypeOptions"
-        optionLabel="label"
-        optionValue="value"
-        placeholder="Sélectionner un type"
-        styleClass="w-full"
-      />
-    </div>
-
-    <div class="field">
-      <label for="street">Rue</label>
-      <input pInputText id="street" formControlName="street" class="w-full" placeholder="123 rue des Lilas" />
-    </div>
-
-    <div class="field-row">
-      <div class="field">
-        <label for="city">Ville</label>
-        <input pInputText id="city" formControlName="city" class="w-full" placeholder="Montréal" />
-      </div>
-      <div class="field">
-        <label for="province">Province</label>
-        <p-select
-          inputId="province"
-          formControlName="province"
-          [options]="provinceOptions"
-          optionLabel="label"
-          optionValue="value"
-          placeholder="Province"
-          styleClass="w-full"
-        />
-      </div>
-    </div>
-
-    <div class="field">
-      <label for="postalCode">Code postal</label>
-      <input pInputText id="postalCode" formControlName="postalCode" class="w-full" placeholder="H1A 1A1" />
-    </div>
-
-    <p class="form-section-title">Détails complémentaires (optionnel)</p>
-
-    <div class="field-row">
-      <div class="field">
-        <label for="cadastreNumber">Numéro de cadastre</label>
-        <input pInputText id="cadastreNumber" formControlName="cadastreNumber" class="w-full" placeholder="1 234 567" />
-      </div>
-      <div class="field">
-        <label for="taxId">Numéro fiscal</label>
-        <input pInputText id="taxId" formControlName="taxId" class="w-full" />
-      </div>
-    </div>
-
-    <div class="field-row">
-      <div class="field">
-        <label for="buildingStatus">État du bâtiment</label>
-        <p-select
-          inputId="buildingStatus"
-          formControlName="buildingStatus"
-          [options]="buildingStatusOptions"
-          optionLabel="label"
-          optionValue="value"
-          placeholder="Sélectionner"
-          styleClass="w-full"
-          [showClear]="true"
-        />
-      </div>
-      <div class="field">
-        <label for="yearBuilt">Année de construction</label>
-        <p-inputnumber inputId="yearBuilt" formControlName="yearBuilt" [useGrouping]="false" styleClass="w-full" />
-      </div>
-    </div>
-
-    <div class="field-row">
-      <div class="field">
-        <label for="floorCount">Nombre d'étages</label>
-        <p-inputnumber inputId="floorCount" formControlName="floorCount" [min]="0" styleClass="w-full" />
-      </div>
-      <div class="field">
-        <label for="totalSurfaceArea">Superficie totale (m²)</label>
-        <p-inputnumber inputId="totalSurfaceArea" formControlName="totalSurfaceArea" [min]="0" styleClass="w-full" />
-      </div>
-    </div>
-
-    <div class="field">
-      <label for="estimatedValue">Valeur estimée ($)</label>
-      <p-inputnumber inputId="estimatedValue" formControlName="estimatedValue" mode="currency" currency="CAD" locale="fr-CA" styleClass="w-full" />
-    </div>
-
-    <div class="field">
-      <label for="description">Description</label>
-      <textarea pTextarea id="description" formControlName="description" class="w-full" rows="3"></textarea>
-    </div>
-
-    <div class="dialog-actions">
-      <p-button label="Annuler" severity="secondary" [text]="true" (onClick)="dialogVisible.set(false)" type="button" />
-      <p-button label="Créer la propriété" icon="pi pi-check" type="submit" [loading]="submitting()" />
-    </div>
-  </form>
-</p-dialog>

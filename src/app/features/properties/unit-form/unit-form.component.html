@@ -1,0 +1,83 @@
+@if (!loading()) {
+  <div class="page-header">
+    <div>
+      <h1>{{ mode() === 'edit' ? "Modifier l'appartement" : 'Nouvel appartement' }}</h1>
+      <p>
+        @if (mode() === 'edit') {
+          Mettez à jour les informations de cet appartement.
+        } @else if (property(); as property) {
+          Ajoutez un appartement à {{ property.street }}.
+        }
+      </p>
+    </div>
+  </div>
+
+  <div class="surface-card form-card">
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="field-row cols-3">
+        <div class="field">
+          <label for="label">Numéro de l'appartement *</label>
+          <input pInputText id="label" formControlName="label" class="w-full" placeholder="101" />
+        </div>
+        <div class="field">
+          <label for="floor">Étage</label>
+          <p-inputnumber inputId="floor" formControlName="floor" styleClass="w-full" />
+        </div>
+        <div class="field">
+          <label for="type">Type d'appartement</label>
+          <p-select inputId="type" formControlName="type" [options]="unitTypeOptions" optionLabel="label" optionValue="value" placeholder="Sélectionner" styleClass="w-full" [showClear]="true" />
+        </div>
+      </div>
+
+      <div class="field-row cols-3">
+        <div class="field">
+          <label for="bedrooms">Nombre de chambres</label>
+          <p-inputnumber inputId="bedrooms" formControlName="bedrooms" [min]="0" styleClass="w-full" />
+        </div>
+        <div class="field">
+          <label for="bathrooms">Nombre de salles de bain</label>
+          <p-inputnumber inputId="bathrooms" formControlName="bathrooms" [min]="0" styleClass="w-full" />
+        </div>
+        <div class="field">
+          <label for="areaSquareMeters">Surface (m²)</label>
+          <p-inputnumber inputId="areaSquareMeters" formControlName="areaSquareMeters" [min]="0" styleClass="w-full" />
+        </div>
+      </div>
+
+      <div class="field-row cols-3">
+        <div class="field">
+          <label for="listedRent">Loyer mensuel ($)</label>
+          <p-inputnumber inputId="listedRent" formControlName="listedRent" mode="currency" currency="CAD" locale="fr-CA" styleClass="w-full" />
+        </div>
+        <div class="field">
+          <label for="listedSecurityDeposit">Dépôt de garantie ($)</label>
+          <p-inputnumber inputId="listedSecurityDeposit" formControlName="listedSecurityDeposit" mode="currency" currency="CAD" locale="fr-CA" styleClass="w-full" />
+        </div>
+        <div class="field">
+          <label for="status">Statut *</label>
+          <p-select inputId="status" formControlName="status" [options]="statusOptions" optionLabel="label" optionValue="value" placeholder="Statut" styleClass="w-full" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="description">Description</label>
+        <textarea pTextarea id="description" formControlName="description" class="w-full" rows="3" placeholder="Description de l'appartement (commodités, particularités, etc.)" maxlength="500"></textarea>
+      </div>
+
+      <div class="field">
+        <label>Photos de l'appartement</label>
+        <div class="photo-grid">
+          <button type="button" class="photo-add" (click)="addPhotos()">
+            <i class="pi pi-camera"></i>
+            <span>Ajouter des photos<br />JPG, PNG (max 10 Mo)</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <p-button label="Annuler" severity="secondary" [outlined]="true" type="button" (onClick)="cancel()" />
+        <p-button label="Enregistrer" icon="pi pi-check" type="submit" [loading]="submitting()" />
+      </div>
+    </form>
+  </div>
+}
