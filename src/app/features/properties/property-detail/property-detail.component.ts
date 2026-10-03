@@ -288,6 +288,11 @@ export class PropertyDetailComponent {
     this.loadProperty();
   }
 
+  mapsUrl(property: PropertyResponse): string {
+    const query = `${property.street}, ${property.city} ${property.postalCode}`;
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+  }
+
   editProperty(): void {
     this.router.navigate(['/properties', this.propertyId, 'edit']);
   }

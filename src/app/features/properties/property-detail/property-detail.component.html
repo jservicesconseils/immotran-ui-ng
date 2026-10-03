@@ -62,6 +62,7 @@
             <div class="informations-list">
               <h3>Informations générales</h3>
               <dl>
+                <div><dt>Type</dt><dd>{{ typeLabels[property.type] }}</dd></div>
                 @if (property.yearBuilt) {
                   <div><dt>Année de construction</dt><dd>{{ property.yearBuilt }}</dd></div>
                 }
@@ -76,15 +77,22 @@
                   <div><dt>Valeur estimée</dt><dd>{{ property.estimatedValue | currency: 'CAD' : 'symbol-narrow' : '1.0-0' }}</dd></div>
                 }
                 @if (property.buildingStatus) {
-                  <div><dt>Statut du bâtiment</dt><dd><p-tag severity="success" [value]="buildingStatusLabels[property.buildingStatus]" /></dd></div>
+                  <div><dt>Statut</dt><dd><p-tag severity="success" [value]="buildingStatusLabels[property.buildingStatus]" /></dd></div>
                 }
               </dl>
               @if (property.description) {
                 <p class="informations-description">{{ property.description }}</p>
               }
             </div>
-            <div class="informations-map">
-              <i class="pi pi-map-marker"></i>
+            <div class="informations-location">
+              <h3>Localisation</h3>
+              <div class="informations-map">
+                <i class="pi pi-map-marker"></i>
+              </div>
+              <p class="informations-address">{{ property.street }}, {{ property.city }} {{ property.postalCode }}</p>
+              <a class="informations-maps-link" [href]="mapsUrl(property)" target="_blank" rel="noopener">
+                <i class="pi pi-external-link"></i> Voir sur Google Maps
+              </a>
             </div>
           </div>
         </p-tabpanel>

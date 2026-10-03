@@ -140,15 +140,50 @@
   line-height: 1.5;
 }
 
+.informations-location {
+  h3 {
+    margin: 0 0 1.1rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--p-surface-900);
+  }
+}
+
 .informations-map {
   border-radius: 0.75rem;
   background: linear-gradient(135deg, #dbeafe, #bfdbfe);
-  min-height: 180px;
+  min-height: 150px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--p-primary-600);
   font-size: 1.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.informations-address {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  color: var(--p-surface-700);
+  line-height: 1.4;
+}
+
+.informations-maps-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--p-primary-600);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  .pi {
+    font-size: 0.75rem;
+  }
 }
 
 // --- Onglet Appartements --------------------------------------------------
