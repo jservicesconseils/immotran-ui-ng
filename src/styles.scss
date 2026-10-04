@@ -173,6 +173,35 @@ body {
   overflow: hidden;
 }
 
+/* Tous les modals (p-dialog) : en-tete bleu plein (texte blanc), sans
+   bordure blanche autour du panneau -- p-dialog est rendu par PrimeNG
+   (encapsulation differente de celle du composant appelant), d'ou des
+   regles globales plutot que scopees. */
+.p-dialog {
+  border: none !important;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.p-dialog-header {
+  background: var(--p-primary-600) !important;
+  padding: 1.1rem 1.5rem;
+}
+
+.p-dialog-title {
+  color: #fff !important;
+  font-weight: 700;
+}
+
+.p-dialog-header-actions .p-dialog-close-button {
+  color: #fff !important;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.15) !important;
+    color: #fff !important;
+  }
+}
+
 /* En-tete de tous les tableaux (p-table) en gris argente, pour le
    distinguer du corps du tableau (blanc) -- p-datatable-thead est rendu
    par PrimeNG (encapsulation differente de celle du composant appelant),

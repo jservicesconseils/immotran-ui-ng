@@ -43,11 +43,11 @@
 <p-dialog header="Nouveau propriétaire" [modal]="true" [(visible)]="dialogVisible" [style]="{ width: '30rem' }">
   <form [formGroup]="form" (ngSubmit)="submit()" class="entity-form">
     <div class="field">
-      <label for="type">Type</label>
+      <label for="type">Type <span class="required-mark">*</span></label>
       <p-select inputId="type" formControlName="type" [options]="ownerTypeOptions" optionLabel="label" optionValue="value" placeholder="Particulier ou société" styleClass="w-full" />
     </div>
     <div class="field">
-      <label for="name">Nom</label>
+      <label for="name">Nom <span class="required-mark">*</span></label>
       <input pInputText id="name" formControlName="name" class="w-full" placeholder="ex. Jean Tremblay ou ABC Immobilier inc." />
     </div>
     <div class="field">

@@ -42,11 +42,11 @@
   <form [formGroup]="form" (ngSubmit)="submit()" class="entity-form">
     <div class="field-row">
       <div class="field">
-        <label for="firstName">Prénom</label>
+        <label for="firstName">Prénom <span class="required-mark">*</span></label>
         <input pInputText id="firstName" formControlName="firstName" class="w-full" placeholder="Marie" />
       </div>
       <div class="field">
-        <label for="lastName">Nom</label>
+        <label for="lastName">Nom <span class="required-mark">*</span></label>
         <input pInputText id="lastName" formControlName="lastName" class="w-full" placeholder="Gagnon" />
       </div>
     </div>

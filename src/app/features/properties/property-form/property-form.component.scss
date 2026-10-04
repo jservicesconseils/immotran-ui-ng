@@ -1,28 +1,11 @@
 // --- Dialog chrome (modal) ----------------------------------------------
-// p-dialog teleporte son markup hors de ce composant (overlay global) :
-// ses propres elements (p-dialog-header, etc.) ne portent pas l'attribut
-// de scoping Angular, d'ou ::ng-deep plutot que des regles scopees.
-::ng-deep .property-form-dialog {
-  .p-dialog-header {
-    background: var(--p-primary-600);
-    padding: 1.25rem 1.75rem;
-    border-radius: 12px 12px 0 0;
-  }
-
-  .p-dialog-header-actions .p-dialog-close-button {
-    color: #fff;
-
-    &:hover {
-      background: rgba(255, 255, 255, 0.15);
-      color: #fff;
-    }
-  }
-
-  .p-dialog-content {
-    padding: 1.75rem 2rem 2rem;
-    max-height: 70vh;
-    overflow-y: auto;
-  }
+// L'en-tete bleu et la bordure sont geres globalement (voir styles.scss,
+// regle .p-dialog-header) -- il ne reste ici que la mise en page propre
+// a ce stepper (contenu plus large, scroll interne).
+::ng-deep .property-form-dialog .p-dialog-content {
+  padding: 1.75rem 2rem 2rem;
+  max-height: 70vh;
+  overflow-y: auto;
 }
 
 .dialog-header-content {

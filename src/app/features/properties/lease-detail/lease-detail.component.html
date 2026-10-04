@@ -78,11 +78,11 @@
 <p-dialog header="Nouvelle échéance" [modal]="true" [(visible)]="paymentDialogVisible" [style]="{ width: '26rem' }">
   <form [formGroup]="paymentForm" (ngSubmit)="submitPayment()" class="entity-form">
     <div class="field">
-      <label for="dueDate">Date d'échéance</label>
+      <label for="dueDate">Date d'échéance <span class="required-mark">*</span></label>
       <p-datepicker inputId="dueDate" formControlName="dueDate" dateFormat="yy-mm-dd" styleClass="w-full" />
     </div>
     <div class="field">
-      <label for="amountDue">Montant dû ($)</label>
+      <label for="amountDue">Montant dû ($) <span class="required-mark">*</span></label>
       <p-inputnumber inputId="amountDue" formControlName="amountDue" mode="currency" currency="CAD" locale="fr-CA" styleClass="w-full" />
     </div>
     <div class="dialog-actions">
@@ -95,7 +95,7 @@
 <p-dialog header="Enregistrer un paiement" [modal]="true" [(visible)]="recordDialogVisible" [style]="{ width: '24rem' }">
   <form [formGroup]="recordForm" (ngSubmit)="submitRecord()" class="entity-form">
     <div class="field">
-      <label for="amountPaid">Montant encaissé ($)</label>
+      <label for="amountPaid">Montant encaissé ($) <span class="required-mark">*</span></label>
       <p-inputnumber inputId="amountPaid" formControlName="amountPaid" mode="currency" currency="CAD" locale="fr-CA" styleClass="w-full" />
     </div>
     <div class="dialog-actions">

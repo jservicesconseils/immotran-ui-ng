@@ -381,11 +381,11 @@
 <p-dialog header="Associer un propriétaire" [modal]="true" [(visible)]="ownerDialogVisible" [style]="{ width: '28rem' }">
   <form [formGroup]="ownerForm" (ngSubmit)="submitOwner()" class="entity-form">
     <div class="field">
-      <label for="ownerId">Propriétaire</label>
+      <label for="ownerId">Propriétaire <span class="required-mark">*</span></label>
       <p-select inputId="ownerId" formControlName="ownerId" [options]="availableOwners()" optionLabel="name" optionValue="id" placeholder="Sélectionner un propriétaire" styleClass="w-full" />
     </div>
     <div class="field">
-      <label for="share">Part de propriété (%)</label>
+      <label for="share">Part de propriété (%) <span class="required-mark">*</span></label>
       <p-inputnumber inputId="share" formControlName="sharePercentage" suffix=" %" [min]="0" [max]="100" styleClass="w-full" />
     </div>
     <div class="dialog-actions">
@@ -400,20 +400,20 @@
   <form [formGroup]="transactionForm" (ngSubmit)="submitTransaction()" class="entity-form">
     <div class="field-row">
       <div class="field">
-        <label for="txType">Type</label>
+        <label for="txType">Type <span class="required-mark">*</span></label>
         <p-select inputId="txType" formControlName="type" [options]="transactionTypeOptions" optionLabel="label" optionValue="value" placeholder="Revenu ou dépense" styleClass="w-full" />
       </div>
       <div class="field">
-        <label for="txCategory">Catégorie</label>
+        <label for="txCategory">Catégorie <span class="required-mark">*</span></label>
         <p-select inputId="txCategory" formControlName="category" [options]="transactionCategoryOptions" optionLabel="label" optionValue="value" placeholder="Catégorie" styleClass="w-full" />
       </div>
     </div>
     <div class="field">
-      <label for="amount">Montant ($)</label>
+      <label for="amount">Montant ($) <span class="required-mark">*</span></label>
       <p-inputnumber inputId="amount" formControlName="amount" mode="currency" currency="CAD" locale="fr-CA" styleClass="w-full" />
     </div>
     <div class="field">
-      <label for="txDate">Date</label>
+      <label for="txDate">Date <span class="required-mark">*</span></label>
       <p-datepicker inputId="txDate" formControlName="transactionDate" dateFormat="yy-mm-dd" styleClass="w-full" />
     </div>
     <div class="field">
@@ -431,11 +431,11 @@
 <p-dialog header="Nouvelle demande de maintenance" [modal]="true" [(visible)]="maintenanceDialogVisible" [style]="{ width: '30rem' }">
   <form [formGroup]="maintenanceForm" (ngSubmit)="submitMaintenance()" class="entity-form">
     <div class="field">
-      <label for="mDescription">Description</label>
+      <label for="mDescription">Description <span class="required-mark">*</span></label>
       <textarea pTextarea id="mDescription" formControlName="description" class="w-full" rows="3" placeholder="ex. Fuite sous l'évier de la cuisine"></textarea>
     </div>
     <div class="field">
-      <label for="priority">Priorité</label>
+      <label for="priority">Priorité <span class="required-mark">*</span></label>
       <p-select inputId="priority" formControlName="priority" [options]="priorityOptions" optionLabel="label" optionValue="value" placeholder="Priorité" styleClass="w-full" />
     </div>
     <div class="dialog-actions">
@@ -467,11 +467,11 @@
 <p-dialog header="Ajouter un document" [modal]="true" [(visible)]="documentDialogVisible" [style]="{ width: '28rem' }">
   <form [formGroup]="documentForm" (ngSubmit)="submitDocument()" class="entity-form">
     <div class="field">
-      <label for="docType">Type de document</label>
+      <label for="docType">Type de document <span class="required-mark">*</span></label>
       <p-select inputId="docType" formControlName="type" [options]="documentTypeOptions" optionLabel="label" optionValue="value" placeholder="Type" styleClass="w-full" />
     </div>
     <div class="field">
-      <label for="fileName">Nom du fichier</label>
+      <label for="fileName">Nom du fichier <span class="required-mark">*</span></label>
       <input pInputText id="fileName" formControlName="fileName" class="w-full" placeholder="ex. assurance-2026.pdf" />
     </div>
     <p class="field-hint">L'envoi réel du fichier vers le stockage (S3) sera ajouté plus tard — seules les métadonnées sont enregistrées ici.</p>
