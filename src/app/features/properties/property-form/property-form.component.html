@@ -165,9 +165,9 @@
 
       <div class="form-actions">
         @if (currentStep() === 1) {
-          <p-button label="Annuler" severity="secondary" [outlined]="true" type="button" (onClick)="cancel()" />
+          <p-button label="Annuler" icon="pi pi-times" severity="secondary" [outlined]="true" type="button" (onClick)="cancel()" />
         } @else {
-          <p-button label="Précédent" severity="secondary" [outlined]="true" type="button" (onClick)="previousStep()" />
+          <p-button label="Précédent" icon="pi pi-arrow-left" severity="secondary" [outlined]="true" type="button" (onClick)="previousStep()" />
         }
         @if (currentStep() < stepTitles.length) {
           <p-button label="Suivant" icon="pi pi-arrow-right" iconPos="right" type="button" (onClick)="nextStep()" />

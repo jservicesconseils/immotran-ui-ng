@@ -34,7 +34,7 @@
       @if (lease.securityDepositPaidAt) {
         <p-tag severity="success" value="Versé" />
       } @else {
-        <p-button label="Enregistrer le versement" size="small" [text]="true" (onClick)="recordSecurityDepositPayment()" />
+        <p-button label="Enregistrer le versement" icon="pi pi-wallet" size="small" [text]="true" (onClick)="recordSecurityDepositPayment()" />
       }
     </div>
   </div>
@@ -64,7 +64,7 @@
         <td><p-tag [severity]="paymentStatusSeverity[payment.status]" [value]="paymentStatusLabels[payment.status]" /></td>
         <td>
           @if (payment.status !== 'PAID') {
-            <p-button label="Enregistrer un paiement" size="small" severity="secondary" [outlined]="true" (onClick)="openRecordDialog(payment)" />
+            <p-button label="Enregistrer un paiement" icon="pi pi-wallet" size="small" severity="secondary" [outlined]="true" (onClick)="openRecordDialog(payment)" />
           }
         </td>
       </tr>
@@ -86,7 +86,7 @@
       <p-inputnumber inputId="amountDue" formControlName="amountDue" mode="currency" currency="CAD" locale="fr-CA" styleClass="w-full" />
     </div>
     <div class="dialog-actions">
-      <p-button label="Annuler" severity="secondary" [text]="true" (onClick)="paymentDialogVisible.set(false)" type="button" />
+      <p-button label="Annuler" icon="pi pi-times" severity="secondary" [text]="true" (onClick)="paymentDialogVisible.set(false)" type="button" />
       <p-button label="Créer" icon="pi pi-check" type="submit" [loading]="paymentSubmitting()" />
     </div>
   </form>
@@ -99,7 +99,7 @@
       <p-inputnumber inputId="amountPaid" formControlName="amountPaid" mode="currency" currency="CAD" locale="fr-CA" styleClass="w-full" />
     </div>
     <div class="dialog-actions">
-      <p-button label="Annuler" severity="secondary" [text]="true" (onClick)="recordDialogVisible.set(false)" type="button" />
+      <p-button label="Annuler" icon="pi pi-times" severity="secondary" [text]="true" (onClick)="recordDialogVisible.set(false)" type="button" />
       <p-button label="Enregistrer" icon="pi pi-check" type="submit" [loading]="recordSubmitting()" />
     </div>
   </form>

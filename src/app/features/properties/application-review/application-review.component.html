@@ -101,9 +101,9 @@
       </div>
 
       <div class="review-actions">
-        <p-button label="Refuser" severity="danger" [loading]="decidingAction() === 'refused'" (onClick)="decide(false)" type="button" />
-        <p-button label="Demander plus d'informations" styleClass="btn-amber" [loading]="decidingAction() === 'info'" (onClick)="requestInfo()" type="button" />
-        <p-button label="Approuver" severity="success" [loading]="decidingAction() === 'accepted'" (onClick)="decide(true)" type="button" />
+        <p-button label="Refuser" icon="pi pi-times-circle" severity="danger" [loading]="decidingAction() === 'refused'" (onClick)="decide(false)" type="button" />
+        <p-button label="Demander plus d'informations" icon="pi pi-question-circle" styleClass="btn-amber" [loading]="decidingAction() === 'info'" (onClick)="requestInfo()" type="button" />
+        <p-button label="Approuver" icon="pi pi-check-circle" severity="success" [loading]="decidingAction() === 'accepted'" (onClick)="decide(true)" type="button" />
       </div>
     </div>
   </div>

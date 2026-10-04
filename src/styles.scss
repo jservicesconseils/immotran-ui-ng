@@ -124,6 +124,51 @@ body {
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 }
 
+/* Onglets (p-tabs) : la barre qui contient les onglets (p-tablist) a un
+   fond bleu plein ; les onglets eux-memes sont du texte clair dessus,
+   l'onglet actif se distinguant par une pastille blanche translucide.
+   p-tablist/p-tab sont rendus par PrimeNG (encapsulation differente de
+   celle du composant appelant), d'ou les regles globales plutot que
+   scopees. */
+.p-tablist {
+  background: var(--p-primary-600);
+  border-radius: 1rem 1rem 0 0;
+  padding: 0.4rem 0.6rem;
+}
+
+.p-tablist-tab-list {
+  gap: 0.3rem;
+  border: none !important;
+}
+
+.p-tab {
+  border-radius: 0.6rem;
+  border: none !important;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.75) !important;
+  background: transparent;
+  transition: background 0.15s ease, color 0.15s ease;
+
+  &:not(.p-tab-active):hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff !important;
+  }
+}
+
+.p-tab-active {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: #fff !important;
+}
+
+.p-tablist-active-bar {
+  display: none;
+}
+
+.p-tablist-prev-button,
+.p-tablist-next-button {
+  color: #fff;
+}
+
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;

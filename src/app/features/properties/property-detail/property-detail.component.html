@@ -115,7 +115,7 @@
             <p-select [options]="floorOptions()" optionLabel="label" optionValue="value" placeholder="Étage" [showClear]="true" [ngModel]="unitFloorFilter()" (ngModelChange)="unitFloorFilter.set($event)" />
             <p-select [options]="unitStatusOptions" optionLabel="label" optionValue="value" placeholder="Statut" [showClear]="true" [ngModel]="unitStatusFilter()" (ngModelChange)="unitStatusFilter.set($event)" />
             <p-select [options]="unitTypeOptions" optionLabel="label" optionValue="value" placeholder="Type" [showClear]="true" [ngModel]="unitTypeFilter()" (ngModelChange)="unitTypeFilter.set($event)" />
-            <p-button label="Ajouter un appartement" icon="pi pi-plus" size="small" (onClick)="openNewUnit()" />
+            <p-button label="Ajouter un appartement" icon="pi pi-plus" (onClick)="openNewUnit()" />
           </div>
 
           <p-table [value]="filteredUnits()" dataKey="id" [rowHover]="true" responsiveLayout="scroll">
@@ -204,7 +204,7 @@
                 <div class="manager-name">{{ managerName() }}</div>
                 <div class="manager-sub">Gestionnaire externe</div>
               </div>
-              <p-button label="Modifier" severity="secondary" [outlined]="true" size="small" (onClick)="moreActions()" />
+              <p-button label="Modifier" icon="pi pi-pencil" severity="secondary" [outlined]="true" size="small" (onClick)="moreActions()" />
             </div>
           </div>
         </p-tabpanel>
@@ -266,7 +266,7 @@
                 <td style="text-align: right">{{ request.cost ? (request.cost | currency: 'CAD' : 'symbol-narrow' : '1.0-0') : '—' }}</td>
                 <td>
                   @if (request.status === 'OUVERTE' || request.status === 'EN_COURS') {
-                    <p-button label="Clôturer" size="small" severity="secondary" [outlined]="true" (onClick)="openCloseDialog(request)" />
+                    <p-button label="Clôturer" icon="pi pi-check-circle" size="small" severity="secondary" [outlined]="true" (onClick)="openCloseDialog(request)" />
                   }
                 </td>
               </tr>
@@ -358,7 +358,7 @@
       <p-inputnumber inputId="share" formControlName="sharePercentage" suffix=" %" [min]="0" [max]="100" styleClass="w-full" />
     </div>
     <div class="dialog-actions">
-      <p-button label="Annuler" severity="secondary" [text]="true" (onClick)="ownerDialogVisible.set(false)" type="button" />
+      <p-button label="Annuler" icon="pi pi-times" severity="secondary" [text]="true" (onClick)="ownerDialogVisible.set(false)" type="button" />
       <p-button label="Associer" icon="pi pi-check" type="submit" [loading]="ownerSubmitting()" />
     </div>
   </form>
@@ -390,7 +390,7 @@
       <input pInputText id="description" formControlName="description" class="w-full" />
     </div>
     <div class="dialog-actions">
-      <p-button label="Annuler" severity="secondary" [text]="true" (onClick)="transactionDialogVisible.set(false)" type="button" />
+      <p-button label="Annuler" icon="pi pi-times" severity="secondary" [text]="true" (onClick)="transactionDialogVisible.set(false)" type="button" />
       <p-button label="Enregistrer" icon="pi pi-check" type="submit" [loading]="transactionSubmitting()" />
     </div>
   </form>
@@ -408,7 +408,7 @@
       <p-select inputId="priority" formControlName="priority" [options]="priorityOptions" optionLabel="label" optionValue="value" placeholder="Priorité" styleClass="w-full" />
     </div>
     <div class="dialog-actions">
-      <p-button label="Annuler" severity="secondary" [text]="true" (onClick)="maintenanceDialogVisible.set(false)" type="button" />
+      <p-button label="Annuler" icon="pi pi-times" severity="secondary" [text]="true" (onClick)="maintenanceDialogVisible.set(false)" type="button" />
       <p-button label="Créer" icon="pi pi-check" type="submit" [loading]="maintenanceSubmitting()" />
     </div>
   </form>
@@ -426,7 +426,7 @@
       <p-inputnumber inputId="cost" formControlName="cost" mode="currency" currency="CAD" locale="fr-CA" styleClass="w-full" />
     </div>
     <div class="dialog-actions">
-      <p-button label="Annuler" severity="secondary" [text]="true" (onClick)="closeDialogVisible.set(false)" type="button" />
+      <p-button label="Annuler" icon="pi pi-times" severity="secondary" [text]="true" (onClick)="closeDialogVisible.set(false)" type="button" />
       <p-button label="Clôturer" icon="pi pi-check" type="submit" [loading]="maintenanceSubmitting()" />
     </div>
   </form>
@@ -445,7 +445,7 @@
     </div>
     <p class="field-hint">L'envoi réel du fichier vers le stockage (S3) sera ajouté plus tard — seules les métadonnées sont enregistrées ici.</p>
     <div class="dialog-actions">
-      <p-button label="Annuler" severity="secondary" [text]="true" (onClick)="documentDialogVisible.set(false)" type="button" />
+      <p-button label="Annuler" icon="pi pi-times" severity="secondary" [text]="true" (onClick)="documentDialogVisible.set(false)" type="button" />
       <p-button label="Enregistrer" icon="pi pi-check" type="submit" [loading]="documentSubmitting()" />
     </div>
   </form>

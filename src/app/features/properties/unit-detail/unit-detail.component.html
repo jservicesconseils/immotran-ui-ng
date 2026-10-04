@@ -169,7 +169,7 @@
                   @if (lease.securityDepositPaidAt) {
                     <p-tag severity="success" value="Versé" styleClass="ml-2" />
                   } @else {
-                    <p-button label="Enregistrer" size="small" [text]="true" (onClick)="recordSecurityDepositPayment(lease)" />
+                    <p-button label="Enregistrer" icon="pi pi-wallet" size="small" [text]="true" (onClick)="recordSecurityDepositPayment(lease)" />
                   }
                 </td>
                 <td class="clickable-row" (click)="openLease(lease)"><p-tag [severity]="leaseStatusSeverity[lease.status]" [value]="leaseStatusLabels[lease.status]" /></td>
@@ -224,7 +224,7 @@
       </div>
     </div>
     <div class="dialog-actions">
-      <p-button label="Annuler" severity="secondary" [text]="true" (onClick)="dialogVisible.set(false)" type="button" />
+      <p-button label="Annuler" icon="pi pi-times" severity="secondary" [text]="true" (onClick)="dialogVisible.set(false)" type="button" />
       <p-button label="Créer le bail" icon="pi pi-check" type="submit" [loading]="submitting()" />
     </div>
   </form>
