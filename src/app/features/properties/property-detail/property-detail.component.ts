@@ -2,12 +2,13 @@ import { CurrencyPipe, DatePipe, Location, NgClass } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MessageService, PrimeTemplate } from 'primeng/api';
+import { MenuItem, MessageService, PrimeTemplate } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { DatePickerModule } from 'primeng/datepicker';
 import { DialogModule } from 'primeng/dialog';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
+import { MenuModule } from 'primeng/menu';
 import { SelectModule } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { TabsModule } from 'primeng/tabs';
@@ -76,6 +77,7 @@ interface HistoryEntry {
     DialogModule,
     InputNumberModule,
     InputTextModule,
+    MenuModule,
     SelectModule,
     TableModule,
     TabsModule,
@@ -364,6 +366,25 @@ export class PropertyDetailComponent {
 
   openUnit(unit: UnitResponse): void {
     this.router.navigate(['/properties', this.propertyId, 'units', unit.id]);
+  }
+
+  openUnitEdit(unit: UnitResponse): void {
+    this.router.navigate(['/properties', this.propertyId, 'units', unit.id, 'edit']);
+  }
+
+  // Menu partage par toutes les lignes du tableau Appartements -- un seul
+  // p-menu est rendu (pas un par ligne) ; l'unite ciblee est capturee au
+  // clic, les items appellent ensuite openUnit/openUnitEdit dessus.
+  private selectedUnitForMenu: UnitResponse | null = null;
+  readonly unitMenuItems: MenuItem[] = [
+    { label: 'Voir les détails', icon: 'pi pi-eye', command: () => this.selectedUnitForMenu && this.openUnit(this.selectedUnitForMenu) },
+    { label: 'Modifier', icon: 'pi pi-pencil', command: () => this.selectedUnitForMenu && this.openUnitEdit(this.selectedUnitForMenu) },
+  ];
+
+  openUnitMenu(event: Event, unit: UnitResponse, menu: { toggle: (event: Event) => void }): void {
+    event.stopPropagation();
+    this.selectedUnitForMenu = unit;
+    menu.toggle(event);
   }
 
   // --- Owners --------------------------------------------------------
