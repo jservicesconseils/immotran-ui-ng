@@ -16,7 +16,7 @@
     <form [formGroup]="form" (ngSubmit)="submit()">
       <div class="field-row cols-3">
         <div class="field">
-          <label for="label">Numéro de l'appartement *</label>
+          <label for="label">Numéro de l'appartement <span class="required-mark">*</span></label>
           <input pInputText id="label" formControlName="label" class="w-full" placeholder="101" />
         </div>
         <div class="field">
@@ -54,7 +54,7 @@
           <p-inputnumber inputId="listedSecurityDeposit" formControlName="listedSecurityDeposit" mode="currency" currency="CAD" locale="fr-CA" styleClass="w-full" />
         </div>
         <div class="field">
-          <label for="status">Statut *</label>
+          <label for="status">Statut <span class="required-mark">*</span></label>
           <p-select inputId="status" formControlName="status" [options]="statusOptions" optionLabel="label" optionValue="value" placeholder="Statut" styleClass="w-full" />
         </div>
       </div>

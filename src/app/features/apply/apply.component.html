@@ -36,25 +36,25 @@
           <h2>Informations personnelles</h2>
           <div class="field-row cols-2">
             <div class="field">
-              <label for="fullName">Nom complet *</label>
+              <label for="fullName">Nom complet <span class="required-mark">*</span></label>
               <input pInputText id="fullName" formControlName="fullName" class="w-full" placeholder="Jean Dupont" />
             </div>
             <div class="field">
-              <label for="dateOfBirth">Date de naissance *</label>
+              <label for="dateOfBirth">Date de naissance <span class="required-mark">*</span></label>
               <p-datepicker inputId="dateOfBirth" formControlName="dateOfBirth" dateFormat="yy-mm-dd" styleClass="w-full" />
             </div>
           </div>
           <div class="field">
-            <label for="currentAddress">Adresse actuelle *</label>
+            <label for="currentAddress">Adresse actuelle <span class="required-mark">*</span></label>
             <input pInputText id="currentAddress" formControlName="currentAddress" class="w-full" placeholder="123 rue Principale, Montréal" />
           </div>
           <div class="field-row cols-3">
             <div class="field">
-              <label for="phone">Téléphone *</label>
+              <label for="phone">Téléphone <span class="required-mark">*</span></label>
               <input pInputText id="phone" formControlName="phone" class="w-full" placeholder="(514) 555-0123" />
             </div>
             <div class="field">
-              <label for="email">Courriel *</label>
+              <label for="email">Courriel <span class="required-mark">*</span></label>
               <input pInputText id="email" type="email" formControlName="email" class="w-full" placeholder="jean.dupont@courriel.com" />
             </div>
             <div class="field">
@@ -65,15 +65,15 @@
           </div>
           <div class="field-row cols-3">
             <div class="field">
-              <label for="profession">Profession *</label>
+              <label for="profession">Profession <span class="required-mark">*</span></label>
               <input pInputText id="profession" formControlName="profession" class="w-full" placeholder="Ingénieur logiciel" />
             </div>
             <div class="field">
-              <label for="employerName">Employeur actuel *</label>
+              <label for="employerName">Employeur actuel <span class="required-mark">*</span></label>
               <input pInputText id="employerName" formControlName="employerName" class="w-full" placeholder="ABC Technologies" />
             </div>
             <div class="field">
-              <label for="monthlyIncome">Revenu mensuel *</label>
+              <label for="monthlyIncome">Revenu mensuel <span class="required-mark">*</span></label>
               <p-inputnumber inputId="monthlyIncome" formControlName="monthlyIncome" mode="currency" currency="CAD" locale="fr-CA" styleClass="w-full" />
             </div>
           </div>
@@ -147,15 +147,15 @@
           }
 
           <div class="field">
-            <label for="unitSelect">Appartement visé *</label>
+            <label for="unitSelect">Appartement visé <span class="required-mark">*</span></label>
             <p-select inputId="unitSelect" [options]="[{ label: 'Appartement ' + (listing()?.unitLabel ?? ''), value: unitId }]" optionLabel="label" optionValue="value" [ngModel]="unitId" [ngModelOptions]="{ standalone: true }" [disabled]="true" styleClass="w-full" />
           </div>
           <div class="field">
-            <label for="desiredMoveInDate">Date d'entrée souhaitée *</label>
+            <label for="desiredMoveInDate">Date d'entrée souhaitée <span class="required-mark">*</span></label>
             <p-datepicker inputId="desiredMoveInDate" formControlName="desiredMoveInDate" dateFormat="yy-mm-dd" styleClass="w-full" />
           </div>
           <div class="field">
-            <label for="leaseDuration">Durée du bail souhaitée *</label>
+            <label for="leaseDuration">Durée du bail souhaitée <span class="required-mark">*</span></label>
             <p-select inputId="leaseDuration" formControlName="leaseDuration" [options]="leaseDurationOptions" optionLabel="label" optionValue="value" styleClass="w-full" />
           </div>
           <div class="field">

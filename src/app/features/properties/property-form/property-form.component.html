@@ -41,7 +41,7 @@
         <h2>Informations générales</h2>
         <div class="field-row cols-2">
           <div class="field">
-            <label for="type">Type de propriété *</label>
+            <label for="type">Type de propriété <span class="required-mark">*</span></label>
             <p-select inputId="type" formControlName="type" [options]="propertyTypeOptions" optionLabel="label" optionValue="value" placeholder="Sélectionner un type" styleClass="w-full" />
           </div>
           <div class="field">
@@ -50,20 +50,20 @@
           </div>
         </div>
         <div class="field">
-          <label for="street">Rue *</label>
+          <label for="street">Rue <span class="required-mark">*</span></label>
           <input pInputText id="street" formControlName="street" class="w-full" placeholder="123 rue des Lilas" />
         </div>
         <div class="field-row cols-3">
           <div class="field">
-            <label for="city">Ville *</label>
+            <label for="city">Ville <span class="required-mark">*</span></label>
             <input pInputText id="city" formControlName="city" class="w-full" placeholder="Montréal" />
           </div>
           <div class="field">
-            <label for="province">Province *</label>
+            <label for="province">Province <span class="required-mark">*</span></label>
             <p-select inputId="province" formControlName="province" [options]="provinceOptions" optionLabel="label" optionValue="value" placeholder="Province" styleClass="w-full" />
           </div>
           <div class="field">
-            <label for="postalCode">Code postal *</label>
+            <label for="postalCode">Code postal <span class="required-mark">*</span></label>
             <input pInputText id="postalCode" formControlName="postalCode" class="w-full" placeholder="H1A 1A1" />
           </div>
         </div>

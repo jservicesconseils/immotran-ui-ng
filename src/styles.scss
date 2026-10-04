@@ -111,6 +111,12 @@ body {
   }
 }
 
+/* Asterisque de champ requis : rouge partout dans l'app (formulaires de
+   creation/edition), plutot que la meme couleur que le reste du label. */
+.required-mark {
+  color: #dc2626;
+}
+
 .surface-card {
   background: var(--p-surface-0);
   border: 1px solid var(--p-surface-200);
