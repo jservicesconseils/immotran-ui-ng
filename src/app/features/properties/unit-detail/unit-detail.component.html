@@ -144,7 +144,7 @@
         <!-- BAUX -->
         <p-tabpanel value="leases">
           <div class="tab-actions">
-            <p-button label="Nouveau bail" icon="pi pi-plus" size="small" (onClick)="openDialog()" />
+            <p-button label="Nouveau bail" icon="pi pi-file-edit" (onClick)="openDialog()" />
           </div>
           <p-table [value]="leases()" dataKey="id" [rowHover]="true" responsiveLayout="scroll">
             <ng-template pTemplate="header">

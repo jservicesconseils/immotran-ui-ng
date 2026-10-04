@@ -194,7 +194,7 @@
         <!-- PROPRIETAIRES -->
         <p-tabpanel value="owners">
           <div class="tab-actions">
-            <p-button label="Ajouter un propriétaire" icon="pi pi-plus" size="small" (onClick)="openOwnerDialog()" />
+            <p-button label="Ajouter un propriétaire" icon="pi pi-user-plus" (onClick)="openOwnerDialog()" />
           </div>
           <p-table [value]="ownerRows()" dataKey="id" [rowHover]="true" responsiveLayout="scroll">
             <ng-template pTemplate="header">
@@ -243,7 +243,7 @@
         <!-- FINANCE -->
         <p-tabpanel value="finance">
           <div class="tab-actions">
-            <p-button label="Ajouter une transaction" icon="pi pi-plus" size="small" (onClick)="openTransactionDialog()" />
+            <p-button label="Ajouter une transaction" icon="pi pi-money-bill" (onClick)="openTransactionDialog()" />
           </div>
           <p-table [value]="transactions()" dataKey="id" [rowHover]="true" responsiveLayout="scroll">
             <ng-template pTemplate="header">
@@ -275,7 +275,7 @@
         <!-- MAINTENANCE -->
         <p-tabpanel value="maintenance">
           <div class="tab-actions">
-            <p-button label="Nouvelle demande" icon="pi pi-plus" size="small" (onClick)="openMaintenanceDialog()" />
+            <p-button label="Nouvelle demande" icon="pi pi-wrench" (onClick)="openMaintenanceDialog()" />
           </div>
           <p-table [value]="maintenanceRequests()" dataKey="id" [rowHover]="true" responsiveLayout="scroll">
             <ng-template pTemplate="header">
@@ -320,7 +320,7 @@
 
           <div class="tab-actions">
             <h3 class="documents-title">Documents joints</h3>
-            <p-button label="Ajouter un document" icon="pi pi-plus" size="small" (onClick)="openDocumentDialog()" />
+            <p-button label="Ajouter un document" icon="pi pi-file-plus" (onClick)="openDocumentDialog()" />
           </div>
           <p-table [value]="documents()" dataKey="id" [rowHover]="true" responsiveLayout="scroll">
             <ng-template pTemplate="header">
