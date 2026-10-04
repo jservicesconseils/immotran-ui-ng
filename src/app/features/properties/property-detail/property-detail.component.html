@@ -135,7 +135,7 @@
             <p-select [options]="floorOptions()" optionLabel="label" optionValue="value" placeholder="Étage" [showClear]="true" [ngModel]="unitFloorFilter()" (ngModelChange)="unitFloorFilter.set($event)" />
             <p-select [options]="unitStatusOptions" optionLabel="label" optionValue="value" placeholder="Statut" [showClear]="true" [ngModel]="unitStatusFilter()" (ngModelChange)="unitStatusFilter.set($event)" />
             <p-select [options]="unitTypeOptions" optionLabel="label" optionValue="value" placeholder="Type" [showClear]="true" [ngModel]="unitTypeFilter()" (ngModelChange)="unitTypeFilter.set($event)" />
-            <p-button label="Ajouter un appartement" icon="pi pi-plus" (onClick)="openNewUnit()" />
+            <p-button label="Ajouter un appartement" icon="pi pi-home" (onClick)="openNewUnit()" />
           </div>
 
           <p-menu #unitMenu [popup]="true" [model]="unitMenuItems" appendTo="body" />
@@ -390,7 +390,7 @@
     </div>
     <div class="dialog-actions">
       <p-button label="Annuler" icon="pi pi-times" severity="secondary" [text]="true" (onClick)="ownerDialogVisible.set(false)" type="button" />
-      <p-button label="Associer" icon="pi pi-check" type="submit" [loading]="ownerSubmitting()" />
+      <p-button label="Associer" icon="pi pi-link" type="submit" [loading]="ownerSubmitting()" />
     </div>
   </form>
 </p-dialog>
@@ -422,7 +422,7 @@
     </div>
     <div class="dialog-actions">
       <p-button label="Annuler" icon="pi pi-times" severity="secondary" [text]="true" (onClick)="transactionDialogVisible.set(false)" type="button" />
-      <p-button label="Enregistrer" icon="pi pi-check" type="submit" [loading]="transactionSubmitting()" />
+      <p-button label="Enregistrer" icon="pi pi-money-bill" type="submit" [loading]="transactionSubmitting()" />
     </div>
   </form>
 </p-dialog>
@@ -440,7 +440,7 @@
     </div>
     <div class="dialog-actions">
       <p-button label="Annuler" icon="pi pi-times" severity="secondary" [text]="true" (onClick)="maintenanceDialogVisible.set(false)" type="button" />
-      <p-button label="Créer" icon="pi pi-check" type="submit" [loading]="maintenanceSubmitting()" />
+      <p-button label="Créer" icon="pi pi-wrench" type="submit" [loading]="maintenanceSubmitting()" />
     </div>
   </form>
 </p-dialog>
@@ -458,7 +458,7 @@
     </div>
     <div class="dialog-actions">
       <p-button label="Annuler" icon="pi pi-times" severity="secondary" [text]="true" (onClick)="closeDialogVisible.set(false)" type="button" />
-      <p-button label="Clôturer" icon="pi pi-check" type="submit" [loading]="maintenanceSubmitting()" />
+      <p-button label="Clôturer" icon="pi pi-check-circle" type="submit" [loading]="maintenanceSubmitting()" />
     </div>
   </form>
 </p-dialog>
@@ -477,7 +477,7 @@
     <p class="field-hint">L'envoi réel du fichier vers le stockage (S3) sera ajouté plus tard — seules les métadonnées sont enregistrées ici.</p>
     <div class="dialog-actions">
       <p-button label="Annuler" icon="pi pi-times" severity="secondary" [text]="true" (onClick)="documentDialogVisible.set(false)" type="button" />
-      <p-button label="Enregistrer" icon="pi pi-check" type="submit" [loading]="documentSubmitting()" />
+      <p-button label="Enregistrer" icon="pi pi-file-plus" type="submit" [loading]="documentSubmitting()" />
     </div>
   </form>
 </p-dialog>

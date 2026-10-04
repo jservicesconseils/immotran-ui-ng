@@ -207,17 +207,17 @@
             <label for="acceptDataUse">J'accepte que mes informations soient utilisées pour l'étude de mon dossier de location.</label>
           </div>
 
-          <p-button label="Soumettre mon dossier" type="submit" styleClass="w-full apply-submit-button" [loading]="submitting()" />
+          <p-button label="Soumettre mon dossier" icon="pi pi-send" type="submit" styleClass="w-full apply-submit-button" [loading]="submitting()" />
         }
 
         @if (currentStep() < 4) {
           <div class="apply-actions">
             @if (currentStep() > 1) {
-              <p-button label="← Précédent" severity="secondary" [outlined]="true" (onClick)="previousStep()" type="button" />
+              <p-button label="Précédent" icon="pi pi-arrow-left" severity="secondary" [outlined]="true" (onClick)="previousStep()" type="button" />
             } @else {
               <span></span>
             }
-            <p-button label="Suivant →" (onClick)="nextStep()" type="button" [disabled]="currentStep() === 2 && !requiredDocsUploaded()" />
+            <p-button label="Suivant" icon="pi pi-arrow-right" iconPos="right" (onClick)="nextStep()" type="button" [disabled]="currentStep() === 2 && !requiredDocsUploaded()" />
           </div>
         }
       </form>
@@ -238,7 +238,7 @@
 
         <p class="success-note">Vous recevrez une confirmation par courriel avec les prochaines étapes.</p>
 
-        <p-button label="Retour à l'accueil" severity="secondary" [outlined]="true" styleClass="w-full" (onClick)="goHome()" />
+        <p-button label="Retour à l'accueil" icon="pi pi-home" severity="secondary" [outlined]="true" styleClass="w-full" (onClick)="goHome()" />
         <a href="#" class="apply-link success-status-link" (click)="$event.preventDefault(); goToStatus()">Consulter le statut de mon dossier</a>
       </div>
     }

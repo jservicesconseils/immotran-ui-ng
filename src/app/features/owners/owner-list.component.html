@@ -3,7 +3,7 @@
     <h1>Propriétaires</h1>
     <p>Particuliers ou sociétés détenant une ou plusieurs propriétés de votre portefeuille.</p>
   </div>
-  <p-button label="Nouveau propriétaire" icon="pi pi-plus" (onClick)="openDialog()" />
+  <p-button label="Nouveau propriétaire" icon="pi pi-briefcase" (onClick)="openDialog()" />
 </div>
 
 <div class="surface-card">
@@ -60,7 +60,7 @@
     </div>
     <div class="dialog-actions">
       <p-button label="Annuler" severity="secondary" [text]="true" (onClick)="dialogVisible.set(false)" type="button" />
-      <p-button label="Créer" icon="pi pi-check" type="submit" [loading]="submitting()" />
+      <p-button label="Créer" icon="pi pi-briefcase" type="submit" [loading]="submitting()" />
     </div>
   </form>
 </p-dialog>
